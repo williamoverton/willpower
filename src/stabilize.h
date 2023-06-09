@@ -4,6 +4,7 @@
 void stabilize();
 void setupServos();
 void setupPIDs();
+void resetPIDs();
 
 // -----------------------
 // Current State

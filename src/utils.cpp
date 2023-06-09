@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "state.h"
 #include "common.h"
-
+#include "barometer.h"
 
 // -----------------------
 // Tinker Variables
@@ -100,6 +100,8 @@ void debug()
     if (millis() - _lastPrintTime > printInterval)
     {
         PrintMPUData();
+
+        // printBarometerData();
 
         Serial.print("Ticks Per Second: ");
         Serial.println(_clockTicks / (printInterval / 1000.0));

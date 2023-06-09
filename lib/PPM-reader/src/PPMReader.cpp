@@ -32,7 +32,7 @@ PPMReader::PPMReader(byte interruptPin, byte channelAmount):
     // Setup an array for storing channel values
     rawValues = new unsigned [channelAmount];
     for (int i = 0; i < channelAmount; ++i) {
-        rawValues[i] = 69;
+        rawValues[i] = 0;
     }
     // Attach an interrupt to the pin
     
