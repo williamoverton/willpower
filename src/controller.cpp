@@ -50,7 +50,7 @@ void failSafeControllerInput() {
 void readRawControllerValues() {
     
     // Check if the controller is connected
-    if (ppm.rawChannelValue(3) < 1000) {
+    if (ppm.rawChannelValue(3) < 500) {
         failSafeControllerInput();
         return;
     }

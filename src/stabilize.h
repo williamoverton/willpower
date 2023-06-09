@@ -2,7 +2,6 @@
 #define STABILIZE_H
 
 void stabilize();
-void setupServos();
 void setupPIDs();
 void resetPIDs();
 
@@ -15,9 +14,10 @@ extern float yaw;
 // -----------------------
 
 // Output States
-extern float ouputPitch; // -1.0 to 1.0
-extern float ouputRoll; // -1.0 to 1.0
-extern float ouputYaw; // -1.0 to 1.0
+extern float outputPitch; // -1.0 to 1.0
+extern float outputRoll; // -1.0 to 1.0
+extern float outputYaw; // -1.0 to 1.0
+extern float outputThrottle; // 0.0 to 1.0
 // -----------------------
 
 #endif

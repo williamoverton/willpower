@@ -1,10 +1,9 @@
 #include "common.h"
 #include "utils.h"
 #include "state.h"
-#include <Servo.h>
 #include <PID_v1.h>
 #include "controller.h"
-#include "pins.h"
+#include "outputs.h"
 
 // -----------------------
 // Current State
@@ -17,14 +16,10 @@ float rollRate = 0.0;  // Degress per second!?!?!?!?!?!?!?!?!?!?!?! CHECK THIS
 float yawRate = 0.0;   // Degress per second!?!?!?!?!?!?!?!?!?!?!?! CHECK THIS
 
 // Output States
-float ouputPitch = 0.0; // -1.0 to 1.0
-float ouputRoll = 0.0;  // -1.0 to 1.0
-float ouputYaw = 0.0;   // -1.0 to 1.0
-
-// Servos
-Servo pitchServo;
-Servo rollServo;
-Servo yawServo;
+float outputPitch = 0.0;    // -1.0 to 1.0
+float outputRoll = 0.0;     // -1.0 to 1.0
+float outputYaw = 0.0;      // -1.0 to 1.0
+float outputThrottle = 0.0; // 0.0 to 1.0
 
 // -----------------------
 // PIDs
@@ -43,27 +38,6 @@ PID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint, pitchKp, pitch
 PID rollPID(&rollInput, &stabilizedRollOutput, &rollSetpoint, rollKp, rollKi, rollKd, DIRECT);
 PID yawPID(&yawInput, &stabilizedYawOutput, &yawSetpoint, yawKp, yawKi, yawKd, DIRECT);
 // -----------------------
-
-void positionServos()
-{
-    const float maxServoAngle = 180.0;
-    const float minServoAngle = 0.0;
-
-    // Serial.print("Output Pitch: ");
-    // Serial.print(ouputPitch);
-    // Serial.print("\t Commanded:");
-    // Serial.print(commandedPitch);
-    // Serial.print("\t Stab:");
-    // Serial.print(stabilizedPitchOutput);
-    // Serial.print("\t Servo:");
-    // Serial.println(fmap(ouputPitch, -1.0, 1.0, minServoAngle, maxServoAngle));
-
-    // Position servos based on output pitch, roll, and yaw
-    // Remap output pitch, roll and yaw to 0-180 degrees for servo
-    pitchServo.write(constrain(int(fmap(ouputPitch, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
-    rollServo.write(constrain(int(fmap(ouputRoll, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
-    yawServo.write(constrain(int(fmap(ouputYaw, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
-}
 
 void setupPIDs()
 {
@@ -146,10 +120,22 @@ void updatePIDsRates()
 
 void mixOutputs()
 {
+    if (currentState == PASSIVE)
+    {
+        outputPitch = commandedPitch;
+        outputRoll = commandedRoll;
+        outputYaw = commandedYaw;
+        outputThrottle = commandedThrottle;
+        return;
+    }
+
     // Update output pitch, roll, and yaw
-    ouputPitch = (float)stabilizedPitchOutput;
-    ouputRoll = (float)stabilizedRollOutput;
-    ouputYaw = (float)stabilizedYawOutput;
+    outputPitch = (float)stabilizedPitchOutput;
+    outputRoll = (float)stabilizedRollOutput;
+    outputYaw = (float)stabilizedYawOutput;
+
+    // Update output throttle. Just passthrough for fixedwing.
+    outputThrottle = commandedThrottle;
 }
 
 void stabilize()
@@ -182,15 +168,10 @@ void stabilize()
 
     // Serial.println("Pitch: " + String(pitch) + " Roll: " + String(roll) + " Yaw: " + String(yaw));
     // Serial.println("Commanded Pitch: " + String(commandedPitch) + " Commanded Roll: " + String(commandedRoll) + " Commanded Yaw: " + String(commandedYaw));
-    // Serial.println("Output Pitch: " + String(ouputPitch) + " Output Roll: " + String(ouputRoll) + " Output Yaw: " + String(ouputYaw));
+    // Serial.println("Output Pitch: " + String(outputPitch) + " Output Roll: " + String(outputRoll) + " Output Yaw: " + String(outputYaw));
     // Serial.println("Rates:" + String(pitchRate) + " " + String(rollRate) + " " + String(yawRate));
 
     mixOutputs();
 
     positionServos();
-}
-
-void setupServos()
-{
-    pitchServo.attach(PITCH_SERVO_PIN);
 }

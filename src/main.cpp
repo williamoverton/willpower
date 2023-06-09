@@ -7,6 +7,7 @@
 #include "stabilize.h"
 #include "controller.h"
 #include "pins.h"
+#include "outputs.h"
 // #include "barometer.h"
 
 // -----------------------
