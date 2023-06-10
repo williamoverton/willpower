@@ -69,7 +69,7 @@ void setup()
   currentState = ACTIVE;
 }
 
-void handleButtonPress() {
+void handleResetMPUButton() {
   if (digitalRead(RESET_MPU_BUTTON) == LOW) {
     Serial.println("Resetting MPU6050...");
     mpu.calcOffsets(true, true);
@@ -95,11 +95,29 @@ void handleArmCheck() {
   }
 }
 
+void handleModeCheck() {
+  FlightMode previousMode = currentMode;
+
+  if(commanedAux2 < 0.1) {
+    currentMode = ANGLE;
+  } else {
+    currentMode = RATES;
+  }
+
+  if(previousMode != currentMode) {
+    resetPIDs();
+    
+    Serial.print("Mode changed to: ");
+    Serial.println(currentMode);
+  }
+}
+
 void logic()
 {
-  handleButtonPress();
+  handleResetMPUButton();
   stabilize();
   handleArmCheck();
+  handleModeCheck();
 }
 
 void loop()

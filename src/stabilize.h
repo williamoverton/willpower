@@ -11,6 +11,10 @@ extern float pitch;
 extern float roll;
 extern float yaw;
 
+extern float pitchRate;
+extern float rollRate;
+extern float yawRate;
+
 // -----------------------
 
 // Output States

@@ -72,9 +72,9 @@ void updatePIDsAngle()
     rollInput = (double)roll;
     yawInput = (double)yawRate;
 
-    pitchSetpoint = (double)commandedPitch;
-    rollSetpoint = (double)commandedRoll;
-    yawSetpoint = (double)commandedYaw;
+    pitchSetpoint = (double)commandedPitch * 0.5; // Limit to 90 degrees
+    rollSetpoint = (double)commandedRoll * 0.5;   // Limit to 90 degrees
+    yawSetpoint = (double)commandedYaw * 0.5;     // Not sure what to do here
 
     if (currentState == PASSIVE)
     {
@@ -94,9 +94,9 @@ void updatePIDsAngle()
 
 void updatePIDsRates()
 {
-    pitchInput = (double)pitchRate;
-    rollInput = (double)rollRate;
-    yawInput = (double)yawRate;
+    pitchInput = (double)pitchRate / 360.0;
+    rollInput = (double)rollRate / 360.0;
+    yawInput = (double)yawRate / 360.0;
 
     if (currentState == PASSIVE)
     {

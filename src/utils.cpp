@@ -2,6 +2,7 @@
 #include "state.h"
 #include "common.h"
 #include "barometer.h"
+#include "stabilize.h"
 
 // -----------------------
 // Tinker Variables
@@ -93,13 +94,32 @@ void PrintMPUData()
     Serial.println(F("=====================================================\n"));
 }
 
+void PrintStabilizeData() 
+{
+    Serial.print(F("Pitch: "));
+    Serial.print(pitch);
+    Serial.print(F("\tRoll: "));
+    Serial.print(roll);
+    Serial.print(F("\tYaw: "));
+    Serial.println(yaw);
+
+    Serial.print(F("Pitch Rate: "));
+    Serial.print(pitchRate);
+    Serial.print(F("\tRoll Rate: "));
+    Serial.print(rollRate);
+    Serial.print(F("\tYaw Rate: "));
+    Serial.println(yawRate);
+
+}
+
 void debug()
 {
     _clockTicks++;
 
     if (millis() - _lastPrintTime > printInterval)
     {
-        PrintMPUData();
+        // PrintMPUData();
+        PrintStabilizeData();
 
         // printBarometerData();
 
