@@ -112,12 +112,26 @@ void handleModeCheck() {
   }
 }
 
+void limitLoopRate(int rateHz) {
+  static unsigned long lastLoopTime = 0;
+  unsigned long loopTime = micros();
+  unsigned long loopRate = 1000000 / (loopTime - lastLoopTime);
+  
+  if (loopRate > rateHz) {
+    delayMicroseconds(1000000 / rateHz - (loopTime - lastLoopTime));
+  }
+
+  lastLoopTime = micros();
+}
+
 void logic()
 {
   handleResetMPUButton();
   stabilize();
   handleArmCheck();
   handleModeCheck();
+
+  limitLoopRate(500);
 }
 
 void loop()

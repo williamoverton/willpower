@@ -49,6 +49,11 @@ void setupPIDs()
     pitchPID.SetOutputLimits(-1.0, 1.0);
     rollPID.SetOutputLimits(-1.0, 1.0);
     yawPID.SetOutputLimits(-1.0, 1.0);
+
+    pitchPID.SetSampleTime(2); // 2ms
+    rollPID.SetSampleTime(2);
+    yawPID.SetSampleTime(2);
+
 }
 
 void resetPIDs()
