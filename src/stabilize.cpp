@@ -137,7 +137,10 @@ void mixOutputs()
     // Update output pitch, roll, and yaw
     outputPitch = (float)stabilizedPitchOutput;
     outputRoll = (float)stabilizedRollOutput;
-    outputYaw = (float)stabilizedYawOutput;
+    
+    // TODO: Figure out how to mix yaw
+    // outputYaw = (float)stabilizedYawOutput;
+    outputYaw = commandedYaw;
 
     // Update output throttle. Just passthrough for fixedwing.
     outputThrottle = commandedThrottle;
