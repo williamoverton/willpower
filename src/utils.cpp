@@ -112,6 +112,23 @@ void PrintStabilizeData()
 
 }
 
+void printMPUOffsets()
+{
+    Serial.print(F("Accelero X: "));
+    Serial.print(mpu.getAccXoffset());
+    Serial.print(F("\tY: "));
+    Serial.print(mpu.getAccYoffset());
+    Serial.print(F("\tZ: "));
+    Serial.println(mpu.getAccZoffset());
+
+    Serial.print(F("Gyro     X: "));
+    Serial.print(mpu.getGyroXoffset());
+    Serial.print(F("\tY: "));
+    Serial.print(mpu.getGyroYoffset());
+    Serial.print(F("\tZ: "));
+    Serial.println(mpu.getGyroZoffset());
+}
+
 void debug()
 {
     _clockTicks++;

@@ -48,10 +48,19 @@ void setup()
   }
 
   // Calibrate MPU6050
-  currentState = CALIBRATE;
-  Serial.println("Starting calibration...");
-  mpu.calcOffsets(true, true);
-  Serial.println("Calibration complete!");
+  // currentState = CALIBRATE;
+  // Serial.println("Starting calibration...");
+  // mpu.calcOffsets(true, true);
+  // Serial.println("Calibration complete!")
+
+  // while(true){
+  //   printMPUOffsets();
+  //   delay(1000);
+  //   Serial.println("");
+  // }
+
+  mpu.setAccOffsets(0.03, 0.0, -0.58);
+  mpu.setGyroOffsets(-5.95, -0.91, -0.58);
 
   // Setup servos
   setupServos();

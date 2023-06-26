@@ -30,9 +30,9 @@ double rollSetpoint, rollInput, stabilizedRollOutput;
 double yawSetpoint, yawInput, stabilizedYawOutput;
 
 // Specify the links and initial tuning parameters
-double pitchKp = 0.96, pitchKi = 1.44, pitchKd = 0.24;
-double rollKp = 0.96, rollKi = 1.44, rollKd = 0.24;
-double yawKp = 1.4, yawKi = 0.24, yawKd = 0.00072;
+double pitchKp = 0.6, pitchKi = 0.4, pitchKd = 0.1; 
+double rollKp = 0.4, rollKi = 0.6, rollKd = 0.1;
+double yawKp = 0.6, yawKi = 0.1, yawKd = 0.0003;
 
 PID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint, pitchKp, pitchKi, pitchKd, DIRECT);
 PID rollPID(&rollInput, &stabilizedRollOutput, &rollSetpoint, rollKp, rollKi, rollKd, DIRECT);
@@ -75,7 +75,7 @@ void updatePIDsAngle()
 {
     pitchInput = (double)pitch;
     rollInput = (double)roll;
-    yawInput = (double)yawRate;
+    yawInput = (double)yawRate / 360.0;
 
     pitchSetpoint = (double)commandedPitch * 0.5; // Limit to 90 degrees
     rollSetpoint = (double)commandedRoll * 0.5;   // Limit to 90 degrees
@@ -127,9 +127,9 @@ void mixOutputs()
 {
     if (currentState == PASSIVE)
     {
-        outputPitch = commandedPitch;
-        outputRoll = commandedRoll;
-        outputYaw = commandedYaw;
+        outputPitch = commandedPitch * 0.8;
+        outputRoll = commandedRoll * 0.7;
+        outputYaw = commandedYaw * 0.9;
         outputThrottle = commandedThrottle;
         return;
     }
@@ -139,8 +139,8 @@ void mixOutputs()
     outputRoll = (float)stabilizedRollOutput;
     
     // TODO: Figure out how to mix yaw
-    // outputYaw = (float)stabilizedYawOutput;
-    outputYaw = commandedYaw;
+    outputYaw = (float)stabilizedYawOutput;
+    // outputYaw = commandedYaw;
 
     // Update output throttle. Just passthrough for fixedwing.
     outputThrottle = commandedThrottle;

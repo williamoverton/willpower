@@ -5,5 +5,6 @@ void printWelcomeMessage();
 void blink();
 void debug();
 float fmap(float, float, float, float, float);
+void printMPUOffsets();
 
 #endif
