@@ -20,7 +20,7 @@ MPU6050 mpu(Wire);
 void setup()
 {
   currentState = INIT;
-  currentMode = ANGLE;
+  currentMode = RATES;
   
   // Initialize LED pin
   pinMode(LED_BUILTIN, OUTPUT);
