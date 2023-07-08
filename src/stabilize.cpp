@@ -30,9 +30,9 @@ double rollSetpoint, rollInput, stabilizedRollOutput;
 double yawSetpoint, yawInput, stabilizedYawOutput;
 
 // Specify the links and initial tuning parameters
-double pitchKp = 0.4, pitchKi = 0.1, pitchKd = 0.01; 
-double rollKp = 0.4, rollKi = 0.1, rollKd = 0.01;
-double yawKp = 0.6, yawKi = 0.1, yawKd = 0.0003;
+double pitchKp = 0.6, pitchKi = 0.1, pitchKd = 0.1; 
+double rollKp = 0.5, rollKi = 0.05, rollKd = 0.05;
+double yawKp = 0.8, yawKi = 0.1, yawKd = 0.003;
 
 PID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint, pitchKp, pitchKi, pitchKd, DIRECT);
 PID rollPID(&rollInput, &stabilizedRollOutput, &rollSetpoint, rollKp, rollKi, rollKd, DIRECT);
@@ -75,7 +75,7 @@ void updatePIDsAngle()
 {
     pitchInput = (double)pitch;
     rollInput = (double)roll;
-    yawInput = (double)yawRate / 360.0;
+    yawInput = (double)-yawRate / 360.0;
 
     pitchSetpoint = (double)commandedPitch * 0.5; // Limit to 90 degrees
     rollSetpoint = (double)commandedRoll * 0.5;   // Limit to 90 degrees
@@ -101,7 +101,7 @@ void updatePIDsRates()
 {
     pitchInput = (double)pitchRate / 360.0;
     rollInput = (double)rollRate / 360.0;
-    yawInput = (double)yawRate / 360.0;
+    yawInput = (double)-yawRate / 360.0;
 
     if (currentState == PASSIVE)
     {
@@ -127,8 +127,8 @@ void mixOutputs()
 {
     if (currentState == PASSIVE)
     {
-        outputPitch = commandedPitch * 0.8;
-        outputRoll = commandedRoll * 0.7;
+        outputPitch = commandedPitch * 0.7;
+        outputRoll = commandedRoll * 0.6;
         outputYaw = commandedYaw * 0.9;
         outputThrottle = commandedThrottle;
         return;
