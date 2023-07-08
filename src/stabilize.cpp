@@ -11,9 +11,9 @@ float pitch = 0.0; // -1.0 to 1.0
 float roll = 0.0;  // -1.0 to 1.0
 float yaw = 0.0;   // -1.0 to 1.0
 
-float pitchRate = 0.0; // Degress per second!?!?!?!?!?!?!?!?!?!?!?! CHECK THIS
-float rollRate = 0.0;  // Degress per second!?!?!?!?!?!?!?!?!?!?!?! CHECK THIS
-float yawRate = 0.0;   // Degress per second!?!?!?!?!?!?!?!?!?!?!?! CHECK THIS
+float pitchRate = 0.0; // Whatever comes out the imu / 360. (CHECK THIS ONE DAY)
+float rollRate = 0.0;  // Whatever comes out the imu / 360. (CHECK THIS ONE DAY)
+float yawRate = 0.0;   // Whatever comes out the imu / 360. (CHECK THIS ONE DAY)
 
 // Output States
 float outputPitch = 0.0;    // -1.0 to 1.0
@@ -30,8 +30,8 @@ double rollSetpoint, rollInput, stabilizedRollOutput;
 double yawSetpoint, yawInput, stabilizedYawOutput;
 
 // Specify the links and initial tuning parameters
-double pitchKp = 0.6, pitchKi = 0.1, pitchKd = 0.1; 
-double rollKp = 0.5, rollKi = 0.05, rollKd = 0.05;
+double pitchKp = 0.6, pitchKi = 0.1, pitchKd = 0.001; 
+double rollKp = 0.5, rollKi = 0.05, rollKd = 0.001;
 double yawKp = 0.8, yawKi = 0.1, yawKd = 0.003;
 
 PID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint, pitchKp, pitchKi, pitchKd, DIRECT);
@@ -75,7 +75,7 @@ void updatePIDsAngle()
 {
     pitchInput = (double)pitch;
     rollInput = (double)roll;
-    yawInput = (double)-yawRate / 360.0;
+    yawInput = (double)-yawRate;
 
     pitchSetpoint = (double)commandedPitch * 0.5; // Limit to 90 degrees
     rollSetpoint = (double)commandedRoll * 0.5;   // Limit to 90 degrees
@@ -99,9 +99,9 @@ void updatePIDsAngle()
 
 void updatePIDsRates()
 {
-    pitchInput = (double)pitchRate / 360.0;
-    rollInput = (double)rollRate / 360.0;
-    yawInput = (double)-yawRate / 360.0;
+    pitchInput = (double)pitchRate;
+    rollInput = (double)rollRate;
+    yawInput = (double)-yawRate;
 
     if (currentState == PASSIVE)
     {
@@ -112,15 +112,24 @@ void updatePIDsRates()
         pitchSetpoint = (double)commandedPitch;
         rollSetpoint = (double)commandedRoll;
         yawSetpoint = (double)commandedYaw;
-
-        pitchPID.SetMode(AUTOMATIC);
-        rollPID.SetMode(AUTOMATIC);
-        yawPID.SetMode(AUTOMATIC);
     }
 
     pitchPID.Compute();
     rollPID.Compute();
     yawPID.Compute();
+
+    // Serial.print("Input: ");
+    // Serial.print(pitchInput);
+    // Serial.print(" Setpoint: ");
+    // Serial.print(pitchSetpoint);
+    // Serial.print(" Output: ");
+    // Serial.println(stabilizedPitchOutput);
+}
+
+void handleMotorKillSwitchCheck() {
+  if(commanedAux2 > 0.8) {
+    outputThrottle = 0.0;
+  }
 }
 
 void mixOutputs()
@@ -137,6 +146,7 @@ void mixOutputs()
     // Update output pitch, roll, and yaw
     outputPitch = (float)stabilizedPitchOutput;
     outputRoll = (float)stabilizedRollOutput;
+    // outputRoll = fmap(rollRate, -180.0, 180.0, -1.0, 1.0);
     
     // TODO: Figure out how to mix yaw
     outputYaw = (float)stabilizedYawOutput;
@@ -156,10 +166,11 @@ void stabilize()
     roll = fmap(mpu.getAngleX(), -180.0, 180.0, -1.0, 1.0);
     yaw = fmap(mpu.getAngleZ(), -180.0, 180.0, -1.0, 1.0);
 
+    float rateScaleAmount = 360;
     // Update pitch, roll, and yaw rates
-    pitchRate = mpu.getGyroY();
-    rollRate = mpu.getGyroX();
-    yawRate = mpu.getGyroZ();
+    pitchRate = mpu.getGyroY() / rateScaleAmount;
+    rollRate = mpu.getGyroX() / rateScaleAmount;
+    yawRate = mpu.getGyroZ() / rateScaleAmount;
 
     // Update commanded pitch, roll, and yaw
     readRawControllerValues();
@@ -167,10 +178,12 @@ void stabilize()
     // Update PIDs
     if (currentMode == ANGLE)
     {
+        // Serial.println("Updating PIDs in angle mode");
         updatePIDsAngle();
     }
     else if (currentMode == RATES)
     {
+        // Serial.println("Updating PIDs in rates mode");
         updatePIDsRates();
     }
 
@@ -180,6 +193,8 @@ void stabilize()
     // Serial.println("Rates:" + String(pitchRate) + " " + String(rollRate) + " " + String(yawRate));
 
     mixOutputs();
+    
+    handleMotorKillSwitchCheck();
 
     positionServos();
 }
