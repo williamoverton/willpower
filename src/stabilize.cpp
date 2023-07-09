@@ -30,9 +30,9 @@ double rollSetpoint, rollInput, stabilizedRollOutput;
 double yawSetpoint, yawInput, stabilizedYawOutput;
 
 // Specify the links and initial tuning parameters
-double pitchKp = 0.6, pitchKi = 0.1, pitchKd = 0.001; 
-double rollKp = 0.5, rollKi = 0.05, rollKd = 0.001;
-double yawKp = 0.8, yawKi = 0.1, yawKd = 0.003;
+double pitchKp = 0.3, pitchKi = 0.1, pitchKd = 0.001; 
+double rollKp = 0.4, rollKi = 0.05, rollKd = 0.001;
+double yawKp = 0.2, yawKi = 0.1, yawKd = 0.003;
 
 PID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint, pitchKp, pitchKi, pitchKd, DIRECT);
 PID rollPID(&rollInput, &stabilizedRollOutput, &rollSetpoint, rollKp, rollKi, rollKd, DIRECT);
