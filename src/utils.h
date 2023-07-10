@@ -6,5 +6,5 @@ void blink();
 void debug();
 float fmap(float, float, float, float, float);
 void printMPUOffsets();
-
+float invSqrt(float x);
 #endif
