@@ -93,8 +93,8 @@ void updatePIDsAngle()
     rollInput = (double)roll;
     yawInput = (double)-yawRate;
 
-    pitchSetpoint = (double)commandedPitch * 0.1; // Limit to 90 degrees
-    rollSetpoint = (double)commandedRoll * 0.1;   // Limit to 90 degrees
+    pitchSetpoint = (double)commandedPitch * 0.4; // Limit to *SOME* degrees
+    rollSetpoint = (double)commandedRoll * 0.4;   // Limit to *SOME* degrees
     yawSetpoint = (double)commandedYaw * 2.0;     // Not sure what to do here
 
     if (currentState == PASSIVE)
@@ -306,6 +306,6 @@ void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, fl
 
     // Map to -1 to 1
     roll = fmap(roll, -180.0, 180.0, -1.0, 1.0);
-    pitch = fmap(pitch, -180.0, 180.0, -1.0, 1.0);
+    pitch = fmap(pitch, -180.0, 180.0, 1.0, -1.0);
     yaw = fmap(yaw, -180.0, 180.0, -1.0, 1.0);
 }
