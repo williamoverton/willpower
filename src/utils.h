@@ -2,6 +2,7 @@
 #define UTILS_H
 
 void printWelcomeMessage();
+void limitLoopRate(int);
 void blink();
 void debug();
 float fmap(float, float, float, float, float);

@@ -22,6 +22,10 @@ float outputYaw = 0.0;      // -1.0 to 1.0
 float outputThrottle = 0.0; // 0.0 to 1.0
 
 // -----------------------
+// Functions
+void getIMUData();
+
+// -----------------------
 // PIDs
 
 // Define Variables we'll be connecting to
@@ -55,6 +59,19 @@ float q1 = 0.0f;
 float q2 = 0.0f;
 float q3 = 0.0f;
 // -----------------------
+
+// Warm up the main loop to allow the madwick filter to converge before commands can be sent to the actuators
+// Assuming vehicle is powered up on level surface!
+void calibrateAttitude() {
+  for (int i = 0; i <= 10000; i++) {
+    prevTime = currentTime;      
+    currentTime = micros();      
+    dt = (currentTime - prevTime)/1000000.0; 
+    getIMUData();
+    Madgwick6DOF(mpu.getGyroX(), mpu.getGyroY(), mpu.getGyroZ(), mpu.getAccX(), mpu.getAccY(), mpu.getAccZ(), dt);
+    limitLoopRate(500);
+  }
+}
 
 void setupPIDs()
 {
@@ -174,17 +191,10 @@ void mixOutputs()
     outputThrottle = commandedThrottle;
 }
 
-void stabilize()
+void getIMUData()
 {
-    prevTime = currentTime;
-    currentTime = micros();
-    dt = (currentTime - prevTime) / 1000000.0;
-
     // Get latest MPU6050 data
     mpu.update();
-
-    // // Update pitch, roll, and yaw
-    Madgwick6DOF(mpu.getGyroX(), mpu.getGyroY(), mpu.getGyroZ(), mpu.getAccX(), mpu.getAccY(), mpu.getAccZ(), dt);
 
     // Divide by 131 to get degrees per second
     // https://github.com/TKJElectronics/KalmanFilter/blob/master/examples/MPU6050/MPU6050.ino#L116C28-L116C35
@@ -193,6 +203,20 @@ void stabilize()
     pitchRate = mpu.getGyroY() / rateScaleAmount;
     rollRate = mpu.getGyroX() / rateScaleAmount;
     yawRate = mpu.getGyroZ() / rateScaleAmount;
+}
+
+void stabilize()
+{
+    // Get latest IMU data
+    getIMUData();
+
+    // Get delta time for Madgwick filter
+    prevTime = currentTime;
+    currentTime = micros();
+    dt = (currentTime - prevTime) / 1000000.0;
+
+    // Update pitch, roll, and yaw
+    Madgwick6DOF(mpu.getGyroX(), mpu.getGyroY(), mpu.getGyroZ(), mpu.getAccX(), mpu.getAccY(), mpu.getAccZ(), dt);
 
     // Update commanded pitch, roll, and yaw
     readRawControllerValues();
