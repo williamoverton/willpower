@@ -65,6 +65,9 @@ void setup()
   // Setup servos
   setupServos();
 
+  // Calibrate attitude
+  calibrateAttitude();
+
   // Setup PIDs
   setupPIDs();
 
