@@ -43,8 +43,9 @@ void failSafeControllerInput() {
     commandedThrottle = 0.0;
     commanedAux1 = 0.0;
     commanedAux2 = 0.0;
-
+#if !GROUND_MODE
     Serial.println("Controller disconnected");
+#endif
 }
 
 void readRawControllerValues() {

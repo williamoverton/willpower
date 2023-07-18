@@ -130,21 +130,67 @@ void printMPUOffsets()
     Serial.println(mpu.getGyroZoffset());
 }
 
-void printGPSData() {
-    Serial.print(F("Latitude: "));
-    Serial.print(latitude);
-    Serial.print(F("\tLongitude: "));
-    Serial.print(longitude);
-    Serial.print(F("\tAltitude: "));
-    Serial.println(altitude);
+void printGPSInfo()
+{
+    Serial.print("Data Age: ");
+    Serial.print(gps.location.age());
 
-    Serial.print(F("Speed: "));
-    Serial.print(speedMetresPerSecond);
-    Serial.print(F("\tCourse: "));
-    Serial.println(courseDegrees);
 
-    Serial.print(F("Satellites: "));
-    Serial.println(satellites);
+    Serial.print(" Satellites: ");
+    gps.satellites.isValid() ? Serial.print(gps.satellites.value()) : Serial.print(F("INVALID"));
+
+    Serial.print(F(" Location: "));
+
+    if (gps.location.isValid())
+    {
+        Serial.print(gps.location.lat(), 6);
+        Serial.print(F(","));
+        Serial.print(gps.location.lng(), 6);
+    }
+    else
+    {
+        Serial.print(F("INVALID"));
+    }
+
+    Serial.print(F("  Date/Time: "));
+    if (gps.date.isValid())
+    {
+        Serial.print(gps.date.year());
+        Serial.print(F("/"));
+        Serial.print(gps.date.month());
+        Serial.print(F("/"));
+        Serial.print(gps.date.day());
+    }
+    else
+    {
+        Serial.print(F("INVALID"));
+    }
+
+    Serial.print(F(" "));
+    if (gps.time.isValid())
+    {
+        if (gps.time.hour() < 10)
+            Serial.print(F("0"));
+        Serial.print(gps.time.hour());
+        Serial.print(F(":"));
+        if (gps.time.minute() < 10)
+            Serial.print(F("0"));
+        Serial.print(gps.time.minute());
+        Serial.print(F(":"));
+        if (gps.time.second() < 10)
+            Serial.print(F("0"));
+        Serial.print(gps.time.second());
+        Serial.print(F("."));
+        if (gps.time.centisecond() < 10)
+            Serial.print(F("0"));
+        Serial.print(gps.time.centisecond());
+    }
+    else
+    {
+        Serial.print(F("INVALID"));
+    }
+
+    Serial.println();
 }
 
 void debug()

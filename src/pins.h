@@ -12,8 +12,8 @@
 
 #define BUZZER_PIN 14
 
-#define GPS_RX_PIN 12
-#define GPS_TX_PIN 13
+#define GPS_RX_PIN 13
+#define GPS_TX_PIN 12
 
 #define SD_SPI1_MISO 8
 #define SD_SPI1_CSn 9

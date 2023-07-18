@@ -9,6 +9,7 @@
 #include "pins.h"
 #include "outputs.h"
 #include "gps.h"
+#include "storage.h"
 #include "crossCore.h"
 // #include "barometer.h"
 
@@ -23,7 +24,7 @@ void setup()
 {
   currentState = INIT;
   currentMode = ANGLE; // THIS IS CHANGED BY THE USER VIA AUX2
-  
+
   // Initialize LED pin
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -43,11 +44,13 @@ void setup()
   Serial.println(status);
 
   // Check if MPU6050 is connected
+#if !GROUND_MODE
   while (status != 0)
   {
     Serial.println("MPU6050 error!");
     delay(1000);
   }
+#endif
 
   // Calibrate MPU6050
   // currentState = CALIBRATE;
@@ -56,7 +59,7 @@ void setup()
   // Serial.println("Calibration complete!");
 
   // while(true){
-    // printMPUOffsets();
+  // printMPUOffsets();
   //   delay(1000);
   //   Serial.println("");
   // }
@@ -73,51 +76,60 @@ void setup()
   // Setup barometer
   // setupBarometer(); // Nah lmao
 
-  // Setup builtin button
-  pinMode(RESET_MPU_BUTTON, INPUT_PULLUP);
-
   // Set current state to active as its GO TIME!
   currentState = ACTIVE;
 }
 
-void handleArmCheck() {
+void handleArmCheck()
+{
   FlightState previousState = currentState;
 
-  if(commanedAux1 < 0.1) {
+  if (commanedAux1 < 0.1)
+  {
     currentState = PASSIVE;
-  } else {
+  }
+  else
+  {
     currentState = ACTIVE;
   }
 
-  if(previousState != currentState) {
+  if (previousState != currentState)
+  {
     Serial.print("State changed to: ");
     Serial.println(currentState);
   }
 }
 
-void handleModeCheck() {
+void handleModeCheck()
+{
   FlightMode previousMode = currentMode;
 
-  if(commanedAux2 < 0.1) {
+  if (commanedAux2 < 0.1)
+  {
     currentMode = ANGLE;
-  } else {
+  }
+  else
+  {
     currentMode = RATES;
   }
 
-  if(previousMode != currentMode) {
+  if (previousMode != currentMode)
+  {
     resetPIDs();
-    
+
     Serial.print("Mode changed to: ");
     Serial.println(currentMode);
   }
 }
 
-void limitLoopRate(int rateHz) {
+void limitLoopRate(int rateHz)
+{
   static unsigned long lastLoopTime = 0;
   unsigned long loopTime = micros();
   unsigned long loopRate = 1000000 / (loopTime - lastLoopTime);
-  
-  if (loopRate > rateHz) {
+
+  if (loopRate > rateHz)
+  {
     delayMicroseconds(1000000 / rateHz - (loopTime - lastLoopTime));
   }
 
@@ -141,15 +153,24 @@ void loop()
   limitLoopRate(500);
 }
 
-void setup1() {
+void setup1()
+{
   // Setup Core2
   Serial.begin(9600);
 
+  delay(5000);
+
   // Setup GPS
   setupGPS();
+
+  // Setup Storage
+  setupStorage();
 }
 
-void loop1() {
+void loop1()
+{
   updateGPS();
   readFromOtherCore();
+
+  writeLog();
 }
