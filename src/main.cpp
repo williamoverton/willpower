@@ -145,11 +145,12 @@ void fly()
 
 void loop()
 {
-  return;
   debug();
   // blink();
   fly();
   readFromOtherCore();
+
+  writeToOtherCore("Ahoy from core 0!");
   limitLoopRate(500);
 }
 
@@ -172,5 +173,8 @@ void loop1()
   updateGPS();
   readFromOtherCore();
 
+  writeToOtherCore("Yo yo! its core 1!");
+
   writeLog();
+  limitLoopRate(500);
 }

@@ -2,5 +2,6 @@
 #define CROSSCORE_H
 
 extern void readFromOtherCore();
+void writeToOtherCore(String message);
 
 #endif
