@@ -3,6 +3,7 @@
 #include "common.h"
 #include "barometer.h"
 #include "stabilize.h"
+#include "gps.h"
 
 // -----------------------
 // Tinker Variables
@@ -127,6 +128,23 @@ void printMPUOffsets()
     Serial.print(mpu.getGyroYoffset());
     Serial.print(F("\tZ: "));
     Serial.println(mpu.getGyroZoffset());
+}
+
+void printGPSData() {
+    Serial.print(F("Latitude: "));
+    Serial.print(latitude);
+    Serial.print(F("\tLongitude: "));
+    Serial.print(longitude);
+    Serial.print(F("\tAltitude: "));
+    Serial.println(altitude);
+
+    Serial.print(F("Speed: "));
+    Serial.print(speedMetresPerSecond);
+    Serial.print(F("\tCourse: "));
+    Serial.println(courseDegrees);
+
+    Serial.print(F("Satellites: "));
+    Serial.println(satellites);
 }
 
 void debug()

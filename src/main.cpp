@@ -8,6 +8,8 @@
 #include "controller.h"
 #include "pins.h"
 #include "outputs.h"
+#include "gps.h"
+#include "crossCore.h"
 // #include "barometer.h"
 
 // -----------------------
@@ -31,8 +33,8 @@ void setup()
   setupPPM();
 
   // Initialize I2C for MPU6050
-  Wire.setSDA(0);
-  Wire.setSCL(1);
+  Wire.setSDA(SDA_PIN);
+  Wire.setSCL(SCL_PIN);
   Wire.begin();
 
   // Initialize MPU6050
@@ -76,17 +78,6 @@ void setup()
 
   // Set current state to active as its GO TIME!
   currentState = ACTIVE;
-}
-
-void handleResetMPUButton() {
-  if (digitalRead(RESET_MPU_BUTTON) == LOW) {
-    Serial.println("Resetting MPU6050...");
-    mpu.calcOffsets(true, true);
-    Serial.println("Reset complete!");
-
-    // Reset PIDs
-    resetPIDs();
-  }
 }
 
 void handleArmCheck() {
@@ -133,20 +124,32 @@ void limitLoopRate(int rateHz) {
   lastLoopTime = micros();
 }
 
-void logic()
+void fly()
 {
-  handleResetMPUButton();
   stabilize();
   handleArmCheck();
   handleModeCheck();
-
-  limitLoopRate(500);
 }
 
 void loop()
 {
+  return;
   debug();
-  blink();
+  // blink();
+  fly();
+  readFromOtherCore();
+  limitLoopRate(500);
+}
 
-  logic();
+void setup1() {
+  // Setup Core2
+  Serial.begin(9600);
+
+  // Setup GPS
+  setupGPS();
+}
+
+void loop1() {
+  updateGPS();
+  readFromOtherCore();
 }
