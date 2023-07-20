@@ -4,7 +4,7 @@
 #include "pins.h"
 #include "utils.h"
 
-#define SHOULD_LOG_GPS false
+#define SHOULD_LOG_GPS true
 
 // LED STUFF
 CRGB leds[1];
@@ -90,13 +90,17 @@ void setupGPS()
 {
     Serial.println("Setting up GPS");
 
-    Serial.println("Setting up GPS status LED");
     FastLED.addLeds<WS2812, 16, RGB>(leds, 1);
     leds[0] = CRGB::DarkMagenta;
+    FastLED.show();
 
-    delay(1000);
+    delay(10000); // Actually required I think
 
-    gpsSerial.begin(9600);
+    gpsSerial.begin(38400);
+
+    FastLED.addLeds<WS2812, 16, RGB>(leds, 1);
+    leds[0] = CRGB::DarkCyan;
+    FastLED.show();
 
     // delay(2000);
 
@@ -143,11 +147,13 @@ void setStatusLED()
 
 void updateGPS()
 {
+    // leds[0] = CRGB::Red;
+
     while (gpsSerial.available() > 0)
     {
         char c = gpsSerial.read();
 
-        // Serial.write(c);
+        Serial.write(c);
 
         // leds[0] = CRGB::Red;
 

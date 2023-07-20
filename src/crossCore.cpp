@@ -35,7 +35,7 @@ void readFromOtherCore()
 
                 char value = (char)(data >> (i * 8));
 
-                if (value == '\n' || value == 0)
+                if (value == '\n')
                 {
                     // End of line
                     // Do something with buffer

@@ -18,15 +18,13 @@
 FlightState currentState;
 FlightMode currentMode;
 MPU6050 mpu(Wire);
+#define LOOP_RATE 500
 // -----------------------
 
 void setup()
 {
   currentState = INIT;
   currentMode = ANGLE; // THIS IS CHANGED BY THE USER VIA AUX2
-
-  // Initialize LED pin
-  pinMode(LED_BUILTIN, OUTPUT);
 
   printWelcomeMessage();
 
@@ -44,13 +42,13 @@ void setup()
   Serial.println(status);
 
   // Check if MPU6050 is connected
-#if !GROUND_MODE
+// #if !GROUND_MODE
   while (status != 0)
   {
     Serial.println("MPU6050 error!");
     delay(1000);
   }
-#endif
+// #endif
 
   // Calibrate MPU6050
   // currentState = CALIBRATE;
@@ -143,6 +141,24 @@ void fly()
   handleModeCheck();
 }
 
+long lastUpdateCoreTime = 0;
+long coreUpdateInterval = 1000000 / 10; // 10 Hz
+void sendCrossCoreData()
+{
+  if (micros() - lastUpdateCoreTime < coreUpdateInterval)
+  {
+    return;
+  }
+
+  lastUpdateCoreTime = micros();
+
+  writeToOtherCore("ANGLE," + String(pitch) + "," + String(roll) + "," + String(yaw));
+  writeToOtherCore("RATE," + String(pitchRate) + "," + String(rollRate) + "," + String(yawRate));
+  writeToOtherCore("STATE," + String(currentState));
+  writeToOtherCore("MODE," + String(currentMode));
+  writeToOtherCore("CONTROLLER," + String(commandedPitch) + "," + String(commandedRoll) + "," + String(commandedYaw) + "," + String(commandedThrottle));
+}
+
 void loop()
 {
   debug();
@@ -150,8 +166,9 @@ void loop()
   fly();
   readFromOtherCore();
 
-  writeToOtherCore("Ahoy from core 0!");
-  limitLoopRate(500);
+  sendCrossCoreData();
+  
+  limitLoopRate(LOOP_RATE);
 }
 
 void setup1()
@@ -173,8 +190,8 @@ void loop1()
   updateGPS();
   readFromOtherCore();
 
-  writeToOtherCore("Yo yo! its core 1!");
+  // writeToOtherCore("Yo yo! its core 1!");
 
   writeLog();
-  limitLoopRate(500);
+  limitLoopRate(LOOP_RATE);
 }

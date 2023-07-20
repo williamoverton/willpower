@@ -4,7 +4,7 @@
 #include "pins.h"
 #include "gps.h"
 
-#define SHOULD_LOG_STORAGE true
+#define SHOULD_LOG_STORAGE false
 
 File f;
 bool sdCardWorking = false;
@@ -169,5 +169,6 @@ void writeLog()
     Serial.print("Writing log took ");
     Serial.print(millis() - start);
     Serial.println(" ms.");
+    Serial.flush();
 #endif
 }
