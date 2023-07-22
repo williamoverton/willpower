@@ -1,13 +1,14 @@
 #include <Arduino.h>
 
-const int fifoSize = 128; // 512 chars per line
+const int fifoSize = 256;
 uint8_t bufferIndex = 0;
 char buffer[fifoSize*4];
 
 // Contents of buffer are string from other core
 void handleMessage() {
-    // Serial.print("Received message: ");
-    // Serial.println(buffer);
+    // Serial.print("Received message on core " + String(rp2040.cpuid()) + ": ");
+
+    Serial.println(buffer);
 }
 
 void readFromOtherCore()

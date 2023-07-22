@@ -6,10 +6,10 @@
 
 #define SHOULD_LOG_STORAGE false
 
-File f;
-bool sdCardWorking = false;
-long logInterval = 1000;
-String filename;
+static File f;
+static bool sdCardWorking = false;
+static long logInterval = 100; //ms
+static String filename;
 
 String buildLogHeader() {
     String line = "";
@@ -74,7 +74,7 @@ void setupSDCard()
     }
     else
     {
-        f.print(buildLogHeader());
+        f.println(buildLogHeader());
         sdCardWorking = true;
     }
 

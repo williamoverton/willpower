@@ -132,11 +132,7 @@ void printMPUOffsets()
 
 void printGPSInfo()
 {
-    Serial.print("Data Age: ");
-    Serial.print(gps.location.age());
-
-
-    Serial.print(" Satellites: ");
+    Serial.print("Satellites: ");
     gps.satellites.isValid() ? Serial.print(gps.satellites.value()) : Serial.print(F("INVALID"));
 
     Serial.print(F(" Location: "));
@@ -151,6 +147,9 @@ void printGPSInfo()
     {
         Serial.print(F("INVALID"));
     }
+
+    Serial.print(" Location Age: ");
+    Serial.print(gps.location.age());
 
     Serial.print(F("  Date/Time: "));
     if (gps.date.isValid())
@@ -210,6 +209,20 @@ void debug()
         _lastPrintTime = millis();
         _clockTicks = 0;
     }
+}
+
+void limitLoopRate(int rateHz)
+{
+  static unsigned long lastLoopTime = 0;
+  unsigned long loopTime = micros();
+  unsigned long loopRate = 1000000 / (loopTime - lastLoopTime);
+
+  if (loopRate > rateHz)
+  {
+    delayMicroseconds(1000000 / rateHz - (loopTime - lastLoopTime));
+  }
+
+  lastLoopTime = micros();
 }
 
 float invSqrt(float x) {
