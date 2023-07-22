@@ -4,4 +4,7 @@
 extern void readFromOtherCore();
 void writeToOtherCore(String message);
 
+extern void (*coreZeroCallbackFunction)(char buffer[]);
+extern void (*coreOneCallbackFunction)(char buffer[]);
+
 #endif

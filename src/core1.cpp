@@ -9,13 +9,14 @@
 
 CRGB leds[1];
 
+void helloBlink();
+static void receiveCrossCoreData(char buffer[]);
+static void limitLoopRate(int rateHz);
+
 void core_setup1()
 {
   // Setup Core2
   Serial.begin(9600);
-
-  // Setup Storage
-  setupStorage();
 
   // Setup LED
   FastLED.addLeds<WS2812, 16>(leds, 1);
@@ -23,33 +24,19 @@ void core_setup1()
 
   // Setup GPS
   setupGPS();
+  FastLED.showColor(CRGB::Orange);
 
-  delay(1000); // TODO: Is this needed?
+  // Setup Storage
+  setupStorage();
 
-  FastLED.showColor(CRGB(0, 255, 0));
-  delay(100);
-  FastLED.showColor(CRGB(0, 0, 255));
-  delay(100);
-  FastLED.showColor(CRGB(0, 255, 0));
-  delay(100);
-  FastLED.showColor(CRGB(0, 0, 255));
-  delay(100);
-  FastLED.showColor(CRGB(0, 255, 0));
-  delay(100);
-  FastLED.showColor(CRGB(0, 0, 255));
-  delay(100);
-  FastLED.showColor(CRGB(0, 255, 0));
-  delay(100);
-  FastLED.showColor(CRGB(0, 0, 255));
-  delay(100);
-  FastLED.showColor(CRGB(0, 255, 0));
-  delay(100);
-  FastLED.showColor(CRGB(0, 0, 255));
-  delay(100);
+  // Setup Cross Core
+  coreZeroCallbackFunction = &receiveCrossCoreData;
+
+  helloBlink();
 }
 
 static long lastUpdateCoreTime = 0;
-static long coreUpdateInterval = 1000000 / 50; // Hz
+static long coreUpdateInterval = 1000000 / 100; // Hz
 static int messageType = 0;
 static void sendCrossCoreData()
 {
@@ -100,4 +87,45 @@ void core_loop1()
   }
 
   limitLoopRate(LOOP_RATE);
+}
+
+void helloBlink()
+{
+  int fadeSpeed = 5;
+
+  for (int j = 0; j < 3; j++)
+  {
+    for (int i = 0; i < 255; i += fadeSpeed)
+    {
+      leds[0] = CRGB(i, 0, 255 - i);
+      FastLED.show();
+      delay(1);
+    }
+
+    for (int i = 0; i < 255; i += fadeSpeed)
+    {
+      leds[0] = CRGB(255 - i, 0, i);
+      FastLED.show();
+      delay(1);
+    }
+  }
+}
+
+void receiveCrossCoreData(char buffer[]) {
+  Serial.print("I gots it! Thing: ");
+  Serial.println(buffer);
+}
+
+void limitLoopRate(int rateHz)
+{
+  static unsigned long lastLoopTime = 0;
+  unsigned long loopTime = micros();
+  unsigned long loopRate = 1000000 / (loopTime - lastLoopTime);
+
+  if (loopRate > rateHz)
+  {
+    delayMicroseconds(1000000 / rateHz - (loopTime - lastLoopTime));
+  }
+
+  lastLoopTime = micros();
 }

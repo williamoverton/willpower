@@ -8,10 +8,11 @@
 
 static File f;
 static bool sdCardWorking = false;
-static long logInterval = 100; //ms
+static long logInterval = 100; // ms
 static String filename;
 
-String buildLogHeader() {
+String buildLogHeader()
+{
     String line = "";
 
     line += "TimeMillis,";
@@ -91,38 +92,39 @@ void setupStorage()
     setupSDCard();
 }
 
-String buildLogMessage() {
+String buildLogMessage()
+{
     String line = "";
 
     line += String(millis());
     line += ",";
 
-    line += String(gps.date.value());
+    line += gps.date.isValid() ? String(gps.date.value()) : "INVALID";
     line += ",";
-    line += String(gps.time.value());
-    line += ",";
-
-    line += String(gps.location.lat(), 6);
-    line += ",";
-    line += String(gps.location.lng(), 6);
+    line += gps.time.isValid() ? String(gps.time.value()) : "INVALID";
     line += ",";
 
-    line += String(gps.altitude.meters(), 2);
+    line += gps.location.isValid() ? String(gps.location.lat(), 6) : "INVALID";
+    line += ",";
+    line += gps.location.isValid() ? String(gps.location.lng(), 6) : "INVALID";
     line += ",";
 
-    line += String(gps.speed.kmph(), 2);
+    line += gps.altitude.isValid() ? String(gps.altitude.meters(), 2) : "INVALID";
     line += ",";
 
-    line += String(gps.course.deg(), 2);
+    line += gps.speed.isValid() ? String(gps.speed.kmph(), 2) : "INVALID";
     line += ",";
 
-    line += String(gps.satellites.value());
+    line += gps.course.isValid() ? String(gps.course.deg(), 2) : "INVALID";
     line += ",";
 
-    line += String(gps.hdop.hdop(), 2);
+    line += gps.satellites.isValid() ? String(gps.satellites.value()) : "INVALID";
     line += ",";
 
-    line += String(gps.location.age());
+    line += gps.hdop.isValid() ? String(gps.hdop.hdop(), 2) : "INVALID";
+    line += ",";
+
+    line += gps.location.isValid() ? String(gps.location.age()) : "INVALID";
 
     return line;
 }
@@ -130,11 +132,6 @@ String buildLogMessage() {
 long lastLog = 0;
 void writeLog()
 {
-    if (!sdCardWorking)
-    {
-        return;
-    }
-
     if (millis() - lastLog < logInterval)
     {
         return;
@@ -142,15 +139,23 @@ void writeLog()
 
     lastLog = millis();
 
+    if (!sdCardWorking)
+    {
+#if SHOULD_LOG_STORAGE
+        Serial.println("SD card not working.");
+#endif
+        return;
+    }
+
     long start = millis();
 
     f = SDFS.open(filename, "a+");
 
     String message = buildLogMessage();
 
-    #if SHOULD_LOG_STORAGE
-        Serial.println(message);
-    #endif
+#if SHOULD_LOG_STORAGE
+    Serial.println(message);
+#endif
 
     if (f)
     {

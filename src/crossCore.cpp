@@ -1,14 +1,29 @@
 #include <Arduino.h>
 
-const int fifoSize = 256;
+const int fifoSize = 64;
 uint8_t bufferIndex = 0;
 char buffer[fifoSize*4];
 
+void (*coreZeroCallbackFunction)(char[]);
+void (*coreOneCallbackFunction)(char[]);
+
 // Contents of buffer are string from other core
 void handleMessage() {
-    // Serial.print("Received message on core " + String(rp2040.cpuid()) + ": ");
+    Serial.print("Received message on core " + String(rp2040.cpuid()) + ": ");
 
     Serial.println(buffer);
+
+    Serial.flush();
+
+    // if (rp2040.cpuid() == 0) {
+    //     if(coreZeroCallbackFunction != NULL) {
+    //         coreZeroCallbackFunction(buffer);
+    //     }
+    // } else {
+    //     if(coreOneCallbackFunction != NULL) {
+    //         coreOneCallbackFunction(buffer);
+    //     }
+    // }
 }
 
 void readFromOtherCore()

@@ -19,20 +19,27 @@ MPU6050 mpu(Wire);
 
 // -----------------------
 
+static void limitLoopRate(int rateHz);
+
 void core_setup0()
 {
+  Serial.begin(9600);
+
   currentState = INIT;
   currentMode = ANGLE; // THIS IS CHANGED BY THE USER VIA AUX2
-
-  printWelcomeMessage();
 
   // Setup PPM
   setupPPM();
 
+  delay(1000);
+
   // Initialize I2C for MPU6050
   Wire.setSDA(SDA_PIN);
   Wire.setSCL(SCL_PIN);
+  // Wire.setTimeout(100);
   Wire.begin();
+
+  delay(1000);
 
   // Initialize MPU6050
   byte status = mpu.begin();
@@ -126,7 +133,7 @@ void fly()
 }
 
 static long lastUpdateCoreTime = 0;
-static long coreUpdateInterval = 1000000 / 50; // Hz
+static long coreUpdateInterval = 1000000 / 100; // Hz
 static int messageType = 0;
 static void sendCrossCoreData()
 {
@@ -172,12 +179,25 @@ static void sendCrossCoreData()
 
 void core_loop0()
 {
-  // debug();
-  // blink();
+  debug();
   fly();
   readFromOtherCore();
 
   sendCrossCoreData();
 
   limitLoopRate(LOOP_RATE);
+}
+
+void limitLoopRate(int rateHz)
+{
+  static unsigned long lastLoopTime = 0;
+  unsigned long loopTime = micros();
+  unsigned long loopRate = 1000000 / (loopTime - lastLoopTime);
+
+  if (loopRate > rateHz)
+  {
+    delayMicroseconds(1000000 / rateHz - (loopTime - lastLoopTime));
+  }
+
+  lastLoopTime = micros();
 }

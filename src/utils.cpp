@@ -19,48 +19,8 @@ unsigned _clockTicks = 0;
 
 // -----------------------
 
-void printWelcomeMessage()
-{
-    Serial.begin(9600);
-    Serial.println("-----------------------------------------------");
-    Serial.println("WILKOMEN TO THE WILL POWER FLIGHT CONTROLLER!");
-    Serial.println("HOLD ON TO YOUR BUTTS!");
-    Serial.println("-----------------------------------------------");
-}
-
 float fmap(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-long unsigned int _lastBlinkTime = 0;
-void blink()
-{
-    unsigned int printInterval = 0;
-
-    if (currentState == INIT)
-    {
-        printInterval = 1000;
-    }
-    else if (currentState == CALIBRATE)
-    {
-        printInterval = 300;
-    }
-    else if (currentState == PASSIVE)
-    {
-        printInterval = 2000;
-    }
-    else if (currentState == ACTIVE)
-    {
-        printInterval = 50;
-    }
-
-    if (millis() - _lastBlinkTime > printInterval)
-    {
-        _lastBlinkTime = millis();
-
-        // Toggle built in LED
-        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-    }
 }
 
 void PrintMPUData()
@@ -206,23 +166,12 @@ void debug()
         Serial.print("Ticks Per Second: ");
         Serial.println(_clockTicks / (printInterval / 1000.0));
 
+        Serial.print("Free Heap: ");
+        Serial.println(rp2040.getFreeHeap());
+
         _lastPrintTime = millis();
         _clockTicks = 0;
     }
-}
-
-void limitLoopRate(int rateHz)
-{
-  static unsigned long lastLoopTime = 0;
-  unsigned long loopTime = micros();
-  unsigned long loopRate = 1000000 / (loopTime - lastLoopTime);
-
-  if (loopRate > rateHz)
-  {
-    delayMicroseconds(1000000 / rateHz - (loopTime - lastLoopTime));
-  }
-
-  lastLoopTime = micros();
 }
 
 float invSqrt(float x) {

@@ -181,7 +181,10 @@ void stabilize()
     dt = (currentTime - prevTime) / 1000000.0;
 
     // Get latest MPU6050 data
+    // long startTime = micros();
     mpu.update();
+    // long endTime = micros();
+    // Serial.println("MPU6050 update took " + String(endTime - startTime) + " microseconds");
 
     // // Update pitch, roll, and yaw
     Madgwick6DOF(mpu.getGyroX(), mpu.getGyroY(), mpu.getGyroZ(), mpu.getAccX(), mpu.getAccY(), mpu.getAccZ(), dt);
