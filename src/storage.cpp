@@ -4,7 +4,7 @@
 #include "pins.h"
 #include "gps.h"
 
-#define SHOULD_LOG_STORAGE false
+#define SHOULD_LOG_STORAGE true
 
 static File f;
 static bool sdCardWorking = false;

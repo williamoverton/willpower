@@ -30,7 +30,7 @@ void core_setup1()
   setupStorage();
 
   // Setup Cross Core
-  coreZeroCallbackFunction = &receiveCrossCoreData;
+  coreOneCallbackFunction = &receiveCrossCoreData;
 
   helloBlink();
 }
@@ -112,8 +112,8 @@ void helloBlink()
 }
 
 void receiveCrossCoreData(char buffer[]) {
-  Serial.print("I gots it! Thing: ");
-  Serial.println(buffer);
+  // Serial.print("I gots it! Thing: ");
+  // Serial.println(buffer);
 }
 
 void limitLoopRate(int rateHz)

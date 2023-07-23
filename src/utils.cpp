@@ -171,6 +171,8 @@ void debug()
 
         _lastPrintTime = millis();
         _clockTicks = 0;
+
+        Serial.flush();
     }
 }
 

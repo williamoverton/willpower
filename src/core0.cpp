@@ -31,15 +31,11 @@ void core_setup0()
   // Setup PPM
   setupPPM();
 
-  delay(1000);
-
   // Initialize I2C for MPU6050
   Wire.setSDA(SDA_PIN);
   Wire.setSCL(SCL_PIN);
   // Wire.setTimeout(100);
   Wire.begin();
-
-  delay(1000);
 
   // Initialize MPU6050
   byte status = mpu.begin();

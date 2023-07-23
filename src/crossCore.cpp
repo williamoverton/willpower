@@ -9,21 +9,21 @@ void (*coreOneCallbackFunction)(char[]);
 
 // Contents of buffer are string from other core
 void handleMessage() {
-    Serial.print("Received message on core " + String(rp2040.cpuid()) + ": ");
+    // Serial.print("Received message on core " + String(rp2040.cpuid()) + ": ");
 
-    Serial.println(buffer);
+    // Serial.println(buffer);
 
-    Serial.flush();
+    // Serial.flush();
 
-    // if (rp2040.cpuid() == 0) {
-    //     if(coreZeroCallbackFunction != NULL) {
-    //         coreZeroCallbackFunction(buffer);
-    //     }
-    // } else {
-    //     if(coreOneCallbackFunction != NULL) {
-    //         coreOneCallbackFunction(buffer);
-    //     }
-    // }
+    if (rp2040.cpuid() == 0) {
+        if(coreZeroCallbackFunction != NULL) {
+            coreZeroCallbackFunction(buffer);
+        }
+    } else {
+        if(coreOneCallbackFunction != NULL) {
+            coreOneCallbackFunction(buffer);
+        }
+    }
 }
 
 void readFromOtherCore()
