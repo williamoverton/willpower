@@ -68,6 +68,24 @@ static void sendCrossCoreData()
   messageType++;
 }
 
+void updateLogInfo()
+{
+  logData.timeMillis = millis();
+  logData.date = gps.date.isValid() ? String(gps.date.value()) : "INVALID";
+  logData.time = gps.time.isValid() ? String(gps.time.value()) : "INVALID";
+
+  logData.lat = gps.location.isValid() ? gps.location.lat() : -1;
+  logData.lng = gps.location.isValid() ? gps.location.lng() : -1;
+  logData.altitude = gps.altitude.isValid() ? gps.altitude.meters() : -1;
+
+  logData.speedKmph = gps.speed.isValid() ? gps.speed.kmph() : -1;
+  logData.courseDegrees = gps.course.isValid() ? gps.course.deg() : -1;
+
+  logData.satellites = gps.satellites.isValid() ? gps.satellites.value() : -1;
+  logData.hdop = gps.hdop.isValid() ? gps.hdop.hdop() : -1;
+  logData.locationAge = gps.location.isValid() ? gps.location.age() : -1;
+}
+
 void core_loop1()
 {
   updateGPS();
@@ -75,6 +93,7 @@ void core_loop1()
   readFromOtherCore();
   sendCrossCoreData();
 
+  updateLogInfo();
   writeLog();
 
   if (gps.satellites.value() > 0)
@@ -111,9 +130,42 @@ void helloBlink()
   }
 }
 
-void receiveCrossCoreData(char buffer[]) {
-  // Serial.print("I gots it! Thing: ");
-  // Serial.println(buffer);
+void receiveCrossCoreData(char buffer[])
+{
+  // Example output: ANGLE,-0.13,0.16,0.56
+  // Amount of entires changes.
+
+  // split the data into an array
+  char *entry = strtok(buffer, ",");
+
+  // first entry is the message type
+  String messageType = String(entry);
+
+  if (messageType == "ANGLE")
+  {
+    double pitch = atof(strtok(NULL, ","));
+    double roll = atof(strtok(NULL, ","));
+    double yaw = atof(strtok(NULL, ","));
+
+    logData.pitch = pitch;
+    logData.roll = roll;
+    logData.yaw = yaw;
+  }
+  if (messageType == "RATES")
+  {
+    double pitchRate = atof(strtok(NULL, ","));
+    double rollRate = atof(strtok(NULL, ","));
+    double yawRate = atof(strtok(NULL, ","));
+
+    logData.pitchRate = pitchRate;
+    logData.rollRate = rollRate;
+    logData.yawRate = yawRate;
+  }
+  else
+  {
+    // Serial.print("Unknown message type: ");
+    // Serial.println(messageType);
+  }
 }
 
 void limitLoopRate(int rateHz)

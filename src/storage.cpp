@@ -3,6 +3,7 @@
 #include <SDFS.h>
 #include "pins.h"
 #include "gps.h"
+#include "storage.h"
 
 #define SHOULD_LOG_STORAGE true
 
@@ -11,19 +12,27 @@ static bool sdCardWorking = false;
 static long logInterval = 100; // ms
 static String filename;
 
+LogData logData;
+
 String buildLogHeader()
 {
     String line = "";
 
     line += "TimeMillis,";
     line += "Date,Time,";
+
     line += "Lat,Lng,";
     line += "Altitude,";
+
     line += "SpeedKmph,";
     line += "CourseDegrees,";
+
     line += "Satellites,";
     line += "HDOP,";
     line += "LocationAge";
+
+    line += "Pitch,Roll,Yaw";
+    line += "PitchRate,RollRate,YawRate";
 
     return line;
 }
@@ -89,6 +98,36 @@ void setupSDCard()
 void setupStorage()
 {
     filename = "/log.csv";
+
+    logData = {
+        // Time
+        0,
+        "",
+        "",
+
+        // position
+        0,
+        0,
+        0,
+
+        // speed & direction
+        0,
+        0,
+
+        // GPS debug info
+        -1,
+        -1,
+        -1,
+
+        // IMU debug info
+        -1,
+        -1,
+        -1,
+
+        -1,
+        -1,
+        -1};
+
     setupSDCard();
 }
 
@@ -96,35 +135,21 @@ String buildLogMessage()
 {
     String line = "";
 
-    line += String(millis());
-    line += ",";
+    line += String(logData.timeMillis) + ",";
+    line += logData.date + "," + logData.time + ",";
 
-    line += gps.date.isValid() ? String(gps.date.value()) : "INVALID";
-    line += ",";
-    line += gps.time.isValid() ? String(gps.time.value()) : "INVALID";
-    line += ",";
+    line += String(logData.lat, 6) + "," + String(logData.lng, 6) + ",";
+    line += String(logData.altitude) + ",";
 
-    line += gps.location.isValid() ? String(gps.location.lat(), 6) : "INVALID";
-    line += ",";
-    line += gps.location.isValid() ? String(gps.location.lng(), 6) : "INVALID";
-    line += ",";
+    line += String(logData.speedKmph) + ",";
+    line += String(logData.courseDegrees) + ",";
 
-    line += gps.altitude.isValid() ? String(gps.altitude.meters(), 2) : "INVALID";
-    line += ",";
+    line += String(logData.satellites) + ",";
+    line += String(logData.hdop) + ",";
+    line += String(logData.locationAge) + ",";
 
-    line += gps.speed.isValid() ? String(gps.speed.kmph(), 2) : "INVALID";
-    line += ",";
-
-    line += gps.course.isValid() ? String(gps.course.deg(), 2) : "INVALID";
-    line += ",";
-
-    line += gps.satellites.isValid() ? String(gps.satellites.value()) : "INVALID";
-    line += ",";
-
-    line += gps.hdop.isValid() ? String(gps.hdop.hdop(), 2) : "INVALID";
-    line += ",";
-
-    line += gps.location.isValid() ? String(gps.location.age()) : "INVALID";
+    line += String(logData.pitch) + "," + String(logData.roll) + "," + String(logData.yaw) + ",";
+    line += String(logData.pitchRate) + "," + String(logData.rollRate) + "," + String(logData.yawRate);
 
     return line;
 }
