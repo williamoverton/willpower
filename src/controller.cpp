@@ -14,9 +14,9 @@ float commanedAux1 = 0.0; // 0.0 to 1.0
 float commanedAux2 = 0.0; // 0.0 to 1.0
 // -----------------------
 
-// Initialize a PPMReader on digital pin 3 with 6 expected channels.
+// Initialize a PPMReader on digital pin PPM_PIN with 6 expected channels.
 byte channelAmount = 6;
-PPMReader ppm(15, channelAmount);
+PPMReader ppm(PPM_PIN, channelAmount);
 
 void setupPPM() {
     ppm.begin();

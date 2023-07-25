@@ -2,7 +2,7 @@
 #define COMMON_H
 
 // Dont require MPU6050 or Controller. Also never take off lol.
-#define GROUND_MODE true
+#define GROUND_MODE false
 
 #include <MPU6050_light.h>
 

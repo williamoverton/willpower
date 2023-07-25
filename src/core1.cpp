@@ -96,7 +96,7 @@ void core_loop1()
   updateLogInfo();
   writeLog();
 
-  if (gps.satellites.value() > 0)
+  if (gps.satellites.value() > 3)
   {
     FastLED.showColor(CRGB(0, 255, 0));
   }
