@@ -95,7 +95,7 @@ void updatePIDsAngle()
 
     pitchSetpoint = (double)commandedPitch * 0.4; // Limit to *SOME* degrees
     rollSetpoint = (double)commandedRoll * 0.4;   // Limit to *SOME* degrees
-    yawSetpoint = (double)commandedYaw * 2.0;     // Not sure what to do here
+    yawSetpoint = (double)((commandedYaw * 2.0) + (rollInput * 0.1));     // Mix yaw with roll to help with turns
 
     if (currentState == PASSIVE)
     {
