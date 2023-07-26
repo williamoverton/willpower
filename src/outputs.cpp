@@ -11,6 +11,8 @@ Servo pitchServo;
 Servo rollServo;
 Servo yawServo;
 Servo throttleOutput;
+Servo aux1Servo;
+Servo aux2Servo;
 
 void positionServos()
 {
@@ -23,8 +25,13 @@ void positionServos()
     rollServo.write(constrain(int(fmap(outputRoll, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
     yawServo.write(constrain(int(fmap(outputYaw, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
 
+
     // Position throttle based on output throttle
     throttleOutput.write(constrain(int(fmap(outputThrottle, 0.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
+
+    // Position aux channels
+    aux1Servo.write(constrain(int(fmap(outputAux1, 0.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
+    aux2Servo.write(constrain(int(fmap(outputAux2, 0.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
 }
 
 
@@ -34,4 +41,6 @@ void setupServos()
     rollServo.attach(ROLL_SERVO_PIN);
     yawServo.attach(YAW_SERVO_PIN);
     throttleOutput.attach(THROTTLE_SERVO_PIN);
+    aux1Servo.attach(AUX1_SERVO_PIN);
+    aux2Servo.attach(AUX2_SERVO_PIN);
 }

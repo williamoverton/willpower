@@ -20,6 +20,8 @@ float outputPitch = 0.0;    // -1.0 to 1.0
 float outputRoll = 0.0;     // -1.0 to 1.0
 float outputYaw = 0.0;      // -1.0 to 1.0
 float outputThrottle = 0.0; // 0.0 to 1.0
+float outputAux1 = 0.0;     // 0.0 to 1.0
+float outputAux2 = 0.0;     // 0.0 to 1.0
 
 // -----------------------
 // PIDs
@@ -152,6 +154,23 @@ void handleMotorKillSwitchCheck()
 
 void mixOutputs()
 {
+    // outputAux1 is connected to Flaps.
+    // We'll control it with commandedAux2 but we want it to move slowly and not in instant jumps.
+    float flapSpeed = 0.01;
+    if(commandedAux2 > outputAux2)
+    {
+        outputAux2 += 0.01;
+    }
+    else if(commandedAux2 < outputAux2)
+    {
+        outputAux2 -= flapSpeed * 1.5;
+    }
+
+    outputAux2 = constrain(outputAux2, 0.0, 1.0);
+
+    /**
+     * If we're in passive mode, we'll just passthrough the commanded values and return.
+    */
     if (currentState == PASSIVE)
     {
         outputPitch = commandedPitch * 0.7;

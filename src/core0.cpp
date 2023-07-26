@@ -26,7 +26,7 @@ void core_setup0()
   Serial.begin(9600);
 
   currentState = INIT;
-  currentMode = ANGLE; // THIS IS CHANGED BY THE USER VIA AUX2
+  currentMode = ANGLE;
 
   // Setup PPM
   setupPPM();
@@ -99,33 +99,33 @@ void handleArmCheck()
   }
 }
 
-void handleModeCheck()
-{
-  FlightMode previousMode = currentMode;
+// void handleModeCheck()
+// {
+//   FlightMode previousMode = currentMode;
 
-  if (commanedAux2 < 0.1)
-  {
-    currentMode = ANGLE;
-  }
-  else
-  {
-    currentMode = RATES;
-  }
+//   if (commanedAux2 < 0.1)
+//   {
+//     currentMode = ANGLE;
+//   }
+//   else
+//   {
+//     currentMode = RATES;
+//   }
 
-  if (previousMode != currentMode)
-  {
-    resetPIDs();
+//   if (previousMode != currentMode)
+//   {
+//     resetPIDs();
 
-    Serial.print("Mode changed to: ");
-    Serial.println(currentMode);
-  }
-}
+//     Serial.print("Mode changed to: ");
+//     Serial.println(currentMode);
+//   }
+// }
 
 void fly()
 {
   stabilize();
   handleArmCheck();
-  handleModeCheck();
+  // handleModeCheck();
 }
 
 static long lastUpdateCoreTime = 0;

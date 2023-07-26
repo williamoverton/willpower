@@ -22,6 +22,8 @@ extern float outputPitch; // -1.0 to 1.0
 extern float outputRoll; // -1.0 to 1.0
 extern float outputYaw; // -1.0 to 1.0
 extern float outputThrottle; // 0.0 to 1.0
+extern float outputAux1; // 0.0 to 1.0
+extern float outputAux2; // 0.0 to 1.0
 // -----------------------
 
 #endif
