@@ -4,7 +4,6 @@
 void stabilize();
 void setupPIDs();
 void resetPIDs();
-void calibrateAttitude();
 
 // -----------------------
 // Current State
