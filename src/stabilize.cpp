@@ -146,7 +146,7 @@ void updatePIDsRates()
 
 void handleMotorKillSwitchCheck()
 {
-    if (commanedAux2 > 0.8)
+    if (commandedAux2 > 0.8)
     {
         outputThrottle = 0.0;
     }
@@ -156,17 +156,17 @@ void mixOutputs()
 {
     // outputAux1 is connected to Flaps.
     // We'll control it with commandedAux2 but we want it to move slowly and not in instant jumps.
-    float flapSpeed = 0.01;
-    if(commandedAux2 > outputAux2)
+    float flapSpeed = 0.001;
+    if(commandedAux2 > outputAux1)
     {
-        outputAux2 += 0.01;
+        outputAux1 += flapSpeed;
     }
-    else if(commandedAux2 < outputAux2)
+    else if(commandedAux2 < outputAux1)
     {
-        outputAux2 -= flapSpeed * 1.5;
+        outputAux1 -= flapSpeed * 1.5;
     }
 
-    outputAux2 = constrain(outputAux2, 0.0, 1.0);
+    outputAux1 = constrain(outputAux1, 0.0, 1.0);
 
     /**
      * If we're in passive mode, we'll just passthrough the commanded values and return.

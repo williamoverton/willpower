@@ -10,8 +10,8 @@ float commandedPitch = 0.0; // -1.0 to 1.0
 float commandedRoll = 0.0;  // -1.0 to 1.0
 float commandedYaw = 0.0;   // -1.0 to 1.0
 float commandedThrottle = 0.0;  // 0.0 to 1.0
-float commanedAux1 = 0.0; // 0.0 to 1.0
-float commanedAux2 = 0.0; // 0.0 to 1.0
+float commandedAux1 = 0.0; // 0.0 to 1.0
+float commandedAux2 = 0.0; // 0.0 to 1.0
 // -----------------------
 
 // Initialize a PPMReader on digital pin PPM_PIN with 6 expected channels.
@@ -41,8 +41,8 @@ void failSafeControllerInput() {
     commandedRoll = 0.0;
     commandedYaw = 0.0;
     commandedThrottle = 0.0;
-    commanedAux1 = 0.0;
-    commanedAux2 = 0.0;
+    commandedAux1 = 0.0;
+    commandedAux2 = 0.0;
 #if !GROUND_MODE
     Serial.println("Controller disconnected");
 #endif
@@ -61,6 +61,6 @@ void readRawControllerValues() {
     commandedYaw = fmap(ppm.rawChannelValue(4), 1000, 2000, -1.0, 1.0);
     commandedThrottle = fmap(ppm.rawChannelValue(3), 1000, 2000, 0.0, 1.0);
 
-    commanedAux1 = fmap(ppm.rawChannelValue(5), 1000, 2000, 0.0, 1.0);
-    commanedAux2 = fmap(ppm.rawChannelValue(6), 1000, 2000, 0.0, 1.0);
+    commandedAux1 = fmap(ppm.rawChannelValue(5), 1000, 2000, 0.0, 1.0);
+    commandedAux2 = fmap(ppm.rawChannelValue(6), 1000, 2000, 0.0, 1.0);
 }

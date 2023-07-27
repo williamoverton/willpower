@@ -9,7 +9,7 @@ extern float commandedRoll;
 extern float commandedYaw;
 extern float commandedThrottle;
 
-extern float commanedAux1;
-extern float commanedAux2;
+extern float commandedAux1;
+extern float commandedAux2;
 
 #endif

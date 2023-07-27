@@ -52,19 +52,20 @@ void core_setup0()
   // #endif
 
   // Calibrate MPU6050
-  currentState = CALIBRATE;
-  Serial.println("Starting calibration...");
-  mpu.calcOffsets(true, true);
-  Serial.println("Calibration complete!");
+  // currentState = CALIBRATE;
+  // Serial.println("Starting calibration...");
+  // mpu.calcOffsets(true, true);
+  // Serial.println("Calibration complete!");
 
-  // while(true){
-  // printMPUOffsets();
+  // while (true)
+  // {
+  //   printMPUOffsets();
   //   delay(1000);
   //   Serial.println("");
   // }
 
-  // mpu.setAccOffsets(0.03, 0.0, -0.58);
-  // mpu.setGyroOffsets(-5.95, -0.91, -0.58);
+  mpu.setAccOffsets(-0.02, 0.0, 0.01);
+  mpu.setGyroOffsets(-0.05, 0.06, -1.52);
 
   // Setup servos
   setupServos();
@@ -83,7 +84,7 @@ void handleArmCheck()
 {
   FlightState previousState = currentState;
 
-  if (commanedAux1 < 0.1)
+  if (commandedAux1 < 0.1)
   {
     currentState = PASSIVE;
   }
@@ -103,7 +104,7 @@ void handleArmCheck()
 // {
 //   FlightMode previousMode = currentMode;
 
-//   if (commanedAux2 < 0.1)
+//   if (commandedAux2 < 0.1)
 //   {
 //     currentMode = ANGLE;
 //   }
@@ -158,7 +159,7 @@ static void sendCrossCoreData()
   }
   else if (messageType == 4)
   {
-    writeToOtherCore("AUX," + String(commanedAux1) + "," + String(commanedAux2));
+    writeToOtherCore("AUX," + String(commandedAux1) + "," + String(commandedAux2));
   }
   else if (messageType == 5)
   {
