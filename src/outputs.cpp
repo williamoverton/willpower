@@ -43,4 +43,6 @@ void setupServos()
     throttleOutput.attach(THROTTLE_SERVO_PIN);
     aux1Servo.attach(AUX1_SERVO_PIN);
     aux2Servo.attach(AUX2_SERVO_PIN);
+
+    positionServos();
 }

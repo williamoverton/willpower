@@ -73,6 +73,8 @@ void core_setup0()
   // Setup PIDs
   setupPIDs();
 
+  calibrateAttitude();
+
   // Setup barometer
   // setupBarometer(); // Nah lmao
 

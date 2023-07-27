@@ -58,6 +58,21 @@ float q2 = 0.0f;
 float q3 = 0.0f;
 // -----------------------
 
+// Warm up the main loop to allow the madwick filter to converge before commands can be sent to the actuators
+// Assuming vehicle is powered up on level surface!
+void calibrateAttitude() {
+  for (int i = 0; i <= 1000; i++) {
+    prevTime = currentTime;      
+    currentTime = micros();      
+    dt = (currentTime - prevTime)/1000000.0; 
+    mpu.update();
+    Madgwick6DOF(mpu.getGyroX(), mpu.getGyroY(), mpu.getGyroZ(), mpu.getAccX(), mpu.getAccY(), mpu.getAccZ(), dt);
+
+    // Sleep for 500th of a second
+    delay(2);
+  }
+}
+
 void setupPIDs()
 {
     // Turn the PIDs on
@@ -97,7 +112,7 @@ void updatePIDsAngle()
 
     pitchSetpoint = (double)commandedPitch * 0.4; // Limit to *SOME* degrees
     rollSetpoint = (double)commandedRoll * 0.4;   // Limit to *SOME* degrees
-    yawSetpoint = (double)((commandedYaw * 2.0) - (commandedRoll * 0.1));     // Mix yaw with roll to help with turns
+    yawSetpoint = (double)((commandedYaw * 2.0) - (commandedRoll * 1.0));     // Mix yaw with roll to help with turns
 
     if (currentState == PASSIVE)
     {
