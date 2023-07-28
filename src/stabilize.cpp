@@ -218,13 +218,13 @@ void getIMUData()
     AccY = mpu.getAccY();
     AccZ = mpu.getAccZ();
 
-    GyroX = (1.0 - B_gyro) * GyroX_prev + B_gyro * GyroX;
-    GyroY = (1.0 - B_gyro) * GyroY_prev + B_gyro * GyroY;
-    GyroZ = (1.0 - B_gyro) * GyroZ_prev + B_gyro * GyroZ;
+    GyroX = (1.0 - B_gyro) * prevGyroX + B_gyro * GyroX;
+    GyroY = (1.0 - B_gyro) * prevGyroY + B_gyro * GyroY;
+    GyroZ = (1.0 - B_gyro) * prevGyroZ + B_gyro * GyroZ;
 
-    AccX = (1.0 - B_accel) * AccX_prev + B_accel * AccX;
-    AccY = (1.0 - B_accel) * AccY_prev + B_accel * AccY;
-    AccZ = (1.0 - B_accel) * AccZ_prev + B_accel * AccZ;
+    AccX = (1.0 - B_accel) * prevAccX + B_accel * AccX;
+    AccY = (1.0 - B_accel) * prevAccY + B_accel * AccY;
+    AccZ = (1.0 - B_accel) * prevAccZ + B_accel * AccZ;
 
     prevGyroX = GyroX;
     prevGyroY = GyroY;

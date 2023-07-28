@@ -78,6 +78,8 @@ void core_setup0()
 
   // Set current state to active as its GO TIME!
   currentState = ACTIVE;
+
+  delay(500);
 }
 
 void handleArmCheck()
