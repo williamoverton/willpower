@@ -38,7 +38,7 @@ void core_setup0()
   Wire.begin();
 
   // Initialize MPU6050
-  byte status = mpu.begin();
+  byte status = mpu.begin(1, 1); // 500 deg/s / +-4g
   Serial.print(F("MPU6050 status: "));
   Serial.println(status);
 
