@@ -48,8 +48,8 @@ float dt;
 long currentTime, prevTime;
 
 float B_madgwick = 0.04 * 4; // Madgwick filter parameter
-float B_accel = 0.14;    // Accelerometer LP filter paramter
-float B_gyro = 0.1;      // Gyro LP filter paramter
+float B_accel = 0.2;         // Accelerometer LP filter paramter
+float B_gyro = 0.2;          // Gyro LP filter paramter
 
 float q0 = 1.0f; // Initialize quaternion for madgwick filter
 float q1 = 0.0f;
@@ -94,9 +94,9 @@ void updatePIDsAngle()
     rollInput = (double)roll;
     yawInput = (double)-yawRate;
 
-    pitchSetpoint = (double)commandedPitch * 0.4; // Limit to *SOME* degrees
-    rollSetpoint = (double)commandedRoll * 0.4;   // Limit to *SOME* degrees
-    yawSetpoint = (double)((commandedYaw * 2.0) - (commandedRoll * 1.0));     // Mix yaw with roll to help with turns
+    pitchSetpoint = (double)commandedPitch * 0.4;                         // Limit to *SOME* degrees
+    rollSetpoint = (double)commandedRoll * 0.4;                           // Limit to *SOME* degrees
+    yawSetpoint = (double)((commandedYaw * 2.0) - (commandedRoll * 1.0)); // Mix yaw with roll to help with turns
 
     if (currentState == PASSIVE)
     {
@@ -156,11 +156,11 @@ void mixOutputs()
     // outputAux1 is connected to Flaps.
     // We'll control it with commandedAux2 but we want it to move slowly and not in instant jumps.
     float flapSpeed = 0.001;
-    if(commandedAux2 > outputAux1)
+    if (commandedAux2 > outputAux1)
     {
         outputAux1 += flapSpeed;
     }
-    else if(commandedAux2 < outputAux1)
+    else if (commandedAux2 < outputAux1)
     {
         outputAux1 -= flapSpeed * 1.5;
     }
@@ -169,7 +169,7 @@ void mixOutputs()
 
     /**
      * If we're in passive mode, we'll just passthrough the commanded values and return.
-    */
+     */
     if (currentState == PASSIVE)
     {
         outputPitch = commandedPitch * 0.7;
@@ -192,6 +192,49 @@ void mixOutputs()
     outputThrottle = commandedThrottle;
 }
 
+float GyroX = 0.0;
+float GyroY = 0.0;
+float GyroZ = 0.0;
+float prevGyroX = 0.0;
+float prevGyroY = 0.0;
+float prevGyroZ = 0.0;
+
+float AccX = 0.0;
+float AccY = 0.0;
+float AccZ = 0.0;
+float prevAccX = 0.0;
+float prevAccY = 0.0;
+float prevAccZ = 0.0;
+
+void getIMUData()
+{
+    mpu.update();
+
+    GyroX = mpu.getGyroX();
+    GyroY = mpu.getGyroY();
+    GyroZ = mpu.getGyroZ();
+
+    AccX = mpu.getAccX();
+    AccY = mpu.getAccY();
+    AccZ = mpu.getAccZ();
+
+    GyroX = (1.0 - B_gyro) * GyroX_prev + B_gyro * GyroX;
+    GyroY = (1.0 - B_gyro) * GyroY_prev + B_gyro * GyroY;
+    GyroZ = (1.0 - B_gyro) * GyroZ_prev + B_gyro * GyroZ;
+
+    AccX = (1.0 - B_accel) * AccX_prev + B_accel * AccX;
+    AccY = (1.0 - B_accel) * AccY_prev + B_accel * AccY;
+    AccZ = (1.0 - B_accel) * AccZ_prev + B_accel * AccZ;
+
+    prevGyroX = GyroX;
+    prevGyroY = GyroY;
+    prevGyroZ = GyroZ;
+
+    prevAccX = AccX;
+    prevAccY = AccY;
+    prevAccZ = AccZ;
+}
+
 void stabilize()
 {
     prevTime = currentTime;
@@ -199,13 +242,10 @@ void stabilize()
     dt = (currentTime - prevTime) / 1000000.0;
 
     // Get latest MPU6050 data
-    // long startTime = micros();
-    mpu.update();
-    // long endTime = micros();
-    // Serial.println("MPU6050 update took " + String(endTime - startTime) + " microseconds");
+    getIMUData();
 
     // // Update pitch, roll, and yaw
-    Madgwick6DOF(mpu.getGyroX(), mpu.getGyroY(), mpu.getGyroZ(), mpu.getAccX(), mpu.getAccY(), mpu.getAccZ(), dt);
+    Madgwick6DOF(GyroX, GyroY, GyroZ, AccX, AccY, AccZ, dt);
 
     // Divide by 131 to get degrees per second
     // https://github.com/TKJElectronics/KalmanFilter/blob/master/examples/MPU6050/MPU6050.ino#L116C28-L116C35

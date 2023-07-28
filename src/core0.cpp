@@ -31,6 +31,9 @@ void core_setup0()
   // Setup PPM
   setupPPM();
 
+  // Setup servos
+  setupServos();
+
   // Initialize I2C for MPU6050
   Wire.setSDA(SDA_PIN);
   Wire.setSCL(SCL_PIN);
@@ -38,6 +41,9 @@ void core_setup0()
   Wire.begin();
 
   // Initialize MPU6050
+  mpu.setAccOffsets(-0.02, 0.0, 0.01);
+  mpu.setGyroOffsets(-0.05, 0.06, -1.52);
+
   byte status = mpu.begin(1, 1); // 500 deg/s / +-4g
   Serial.print(F("MPU6050 status: "));
   Serial.println(status);
@@ -63,12 +69,6 @@ void core_setup0()
   //   delay(1000);
   //   Serial.println("");
   // }
-
-  mpu.setAccOffsets(-0.02, 0.0, 0.01);
-  mpu.setGyroOffsets(-0.05, 0.06, -1.52);
-
-  // Setup servos
-  setupServos();
 
   // Setup PIDs
   setupPIDs();
