@@ -73,6 +73,17 @@ void setupSDCard()
 
 #endif
 
+    int fileIndex = 0;
+
+    String filePrefix = "flightlog_";
+
+    while (SDFS.exists(filePrefix + String(fileIndex) + ".csv"))
+    {
+        fileIndex++;
+    }
+
+    filename = filePrefix + String(fileIndex) + ".csv";
+
     f = SDFS.open(filename, "w");
 
     if (!f)
@@ -97,8 +108,6 @@ void setupSDCard()
 
 void setupStorage()
 {
-    filename = "/log.csv";
-
     logData = {
         // Time
         0,
