@@ -61,6 +61,8 @@ void core_setup0()
   // currentState = CALIBRATE;
   // Serial.println("Starting calibration...");
   // mpu.calcOffsets(true, true);
+  mpu.setAccOffsets(-0.02, 0.0, 0.01);
+  mpu.setGyroOffsets(-0.05, 0.06, -1.52);
   // Serial.println("Calibration complete!");
 
   // while (true)
