@@ -47,9 +47,9 @@ void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, fl
 float dt;
 long currentTime, prevTime;
 
-float B_madgwick = 0.04 * 3; // Madgwick filter parameter
-float B_accel = 0.14 * 4;    // Accelerometer LP filter paramter
-float B_gyro = 0.14 * 4;     // Gyro LP filter paramter
+float B_madgwick = 0.04 * 2; // Madgwick filter parameter
+float B_accel = 0.14;        // Accelerometer LP filter paramter
+float B_gyro = 0.14;         // Gyro LP filter paramter
 float q0 = 1.0f;             // Initialize quaternion for madgwick filter
 float q1 = 0.0f;
 float q2 = 0.0f;
