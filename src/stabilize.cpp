@@ -48,10 +48,9 @@ float dt;
 long currentTime, prevTime;
 
 float B_madgwick = 0.04 * 3; // Madgwick filter parameter
-float B_accel = 0.14 * 4;         // Accelerometer LP filter paramter
-float B_gyro = 0.14 * 4;          // Gyro LP filter paramter
-
-float q0 = 1.0f; // Initialize quaternion for madgwick filter
+float B_accel = 0.14 * 4;    // Accelerometer LP filter paramter
+float B_gyro = 0.14 * 4;     // Gyro LP filter paramter
+float q0 = 1.0f;             // Initialize quaternion for madgwick filter
 float q1 = 0.0f;
 float q2 = 0.0f;
 float q3 = 0.0f;
@@ -94,8 +93,8 @@ void updatePIDsAngle()
     rollInput = (double)roll;
     yawInput = (double)-yawRate;
 
-    pitchSetpoint = (double)commandedPitch * 0.6;                         // Limit to *SOME* degrees
-    rollSetpoint = (double)commandedRoll * 0.6;                           // Limit to *SOME* degrees
+    pitchSetpoint = (double)commandedPitch * 0.6; // Limit to *SOME* degrees
+    rollSetpoint = (double)commandedRoll * 0.6;   // Limit to *SOME* degrees
     yawSetpoint = (double)((commandedYaw * 2.0)); //- (commandedRoll * 1.0)); // Mix yaw with roll to help with turns
 
     if (currentState == PASSIVE)
