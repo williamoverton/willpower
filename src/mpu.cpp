@@ -37,6 +37,13 @@ float prevAccZ = 0.0;
 float B_accel = 0.14;    // Accelerometer LP filter paramter
 float B_gyro = 0.1;      // Gyro LP filter paramter
 
+float AccErrorX = 0.0;
+float AccErrorY = 0.0;
+float AccErrorZ = 0.0;
+float GyroErrorX = 0.0;
+float GyroErrorY= 0.0;
+float GyroErrorZ = 0.0;
+
 void getIMUData()
 {
     int16_t AcX, AcY, AcZ, GyX, GyY, GyZ;
@@ -52,9 +59,9 @@ void getIMUData()
     AccZ = AcZ / ACCEL_SCALE_FACTOR;
 
     // Correct the outputs with the calculated error values
-    // AccX = AccX - AccErrorX;
-    // AccY = AccY - AccErrorY;
-    // AccZ = AccZ - AccErrorZ;
+    AccX = AccX - AccErrorX;
+    AccY = AccY - AccErrorY;
+    AccZ = AccZ - AccErrorZ;
 
     // LP filter accelerometer data
     AccX = (1.0 - B_accel) * prevAccX + B_accel * AccX;
@@ -65,10 +72,11 @@ void getIMUData()
     GyroX = GyX / GYRO_SCALE_FACTOR; // deg/sec
     GyroY = GyY / GYRO_SCALE_FACTOR;
     GyroZ = GyZ / GYRO_SCALE_FACTOR;
+
     // Correct the outputs with the calculated error values
-    // GyroX = GyroX - GyroErrorX;
-    // GyroY = GyroY - GyroErrorY;
-    // GyroZ = GyroZ - GyroErrorZ;
+    GyroX = GyroX - GyroErrorX;
+    GyroY = GyroY - GyroErrorY;
+    GyroZ = GyroZ - GyroErrorZ;
 
     // LP filter gyro data
     GyroX = (1.0 - B_gyro) * prevGyroX + B_gyro * GyroX;
@@ -82,4 +90,65 @@ void getIMUData()
     prevAccX = AccX;
     prevAccY = AccY;
     prevAccZ = AccZ;
+}
+
+void calculate_IMU_error() {
+  int16_t AcX,AcY,AcZ,GyX,GyY,GyZ,MgX,MgY,MgZ;
+  AccErrorX = 0.0;
+  AccErrorY = 0.0;
+  AccErrorZ = 0.0;
+  GyroErrorX = 0.0;
+  GyroErrorY= 0.0;
+  GyroErrorZ = 0.0;
+  
+  //Read IMU values 12000 times
+  int c = 0;
+  while (c < 12000) {
+    mpu.getMotion6(&AcX, &AcY, &AcZ, &GyX, &GyY, &GyZ);
+    
+    AccX  = AcX / ACCEL_SCALE_FACTOR;
+    AccY  = AcY / ACCEL_SCALE_FACTOR;
+    AccZ  = AcZ / ACCEL_SCALE_FACTOR;
+    GyroX = GyX / GYRO_SCALE_FACTOR;
+    GyroY = GyY / GYRO_SCALE_FACTOR;
+    GyroZ = GyZ / GYRO_SCALE_FACTOR;
+    
+    //Sum all readings
+    AccErrorX  = AccErrorX + AccX;
+    AccErrorY  = AccErrorY + AccY;
+    AccErrorZ  = AccErrorZ + AccZ;
+    GyroErrorX = GyroErrorX + GyroX;
+    GyroErrorY = GyroErrorY + GyroY;
+    GyroErrorZ = GyroErrorZ + GyroZ;
+    c++;
+  }
+  //Divide the sum by 12000 to get the error value
+  AccErrorX  = AccErrorX / c;
+  AccErrorY  = AccErrorY / c;
+  AccErrorZ  = AccErrorZ / c - 1.0;
+  GyroErrorX = GyroErrorX / c;
+  GyroErrorY = GyroErrorY / c;
+  GyroErrorZ = GyroErrorZ / c;
+
+  Serial.print("float AccErrorX = ");
+  Serial.print(AccErrorX);
+  Serial.println(";");
+  Serial.print("float AccErrorY = ");
+  Serial.print(AccErrorY);
+  Serial.println(";");
+  Serial.print("float AccErrorZ = ");
+  Serial.print(AccErrorZ);
+  Serial.println(";");
+  
+  Serial.print("float GyroErrorX = ");
+  Serial.print(GyroErrorX);
+  Serial.println(";");
+  Serial.print("float GyroErrorY = ");
+  Serial.print(GyroErrorY);
+  Serial.println(";");
+  Serial.print("float GyroErrorZ = ");
+  Serial.print(GyroErrorZ);
+  Serial.println(";");
+
+  Serial.println("Paste these values in user specified variables section and comment out calculate_IMU_error() in void setup.");
 }

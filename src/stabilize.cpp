@@ -90,9 +90,9 @@ void updatePIDsAngle()
     rollInput = (double)roll;
     yawInput = (double)-yaw;
 
-    pitchSetpoint = (double)commandedPitch * 0.6; // Limit to *SOME* degrees
-    rollSetpoint = (double)commandedRoll * 0.6;   // Limit to *SOME* degrees
-    yawSetpoint = (double)((commandedRoll * 0.5));
+    pitchSetpoint = (double)commandedPitch * 45; // Limit to *SOME* degrees
+    rollSetpoint = (double)commandedRoll * 45;   // Limit to *SOME* degrees
+    yawSetpoint = (double)((commandedRoll * 45));
 
     pitchPID.Compute();
     rollPID.Compute();
@@ -116,8 +116,6 @@ void mixOutputs()
     outputLeftavon = stabilizedPitchOutput + stabilizedRollOutput;
     outputRightavon = stabilizedPitchOutput - stabilizedRollOutput;
 }
-
-
 
 void stabilize()
 {
