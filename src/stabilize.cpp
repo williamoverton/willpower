@@ -1,9 +1,11 @@
+#include <Arduino.h>
 #include <QuickPID.h>
 #include "common.h"
 #include "utils.h"
 #include "state.h"
 #include "controller.h"
 #include "outputs.h"
+#include "mpu.h"
 
 // -----------------------
 // Current State
@@ -11,17 +13,13 @@ float pitch = 0.0; // -1.0 to 1.0
 float roll = 0.0;  // -1.0 to 1.0
 float yaw = 0.0;   // -1.0 to 1.0
 
-float pitchRate = 0.0; // Whatever comes out the imu / 360. (CHECK THIS ONE DAY)
-float rollRate = 0.0;  // Whatever comes out the imu / 360. (CHECK THIS ONE DAY)
-float yawRate = 0.0;   // Whatever comes out the imu / 360. (CHECK THIS ONE DAY)
-
 // Output States
-float outputLeftMotor = 0; // -1.0 to 1.0
+float outputLeftMotor = 0;  // -1.0 to 1.0
 float outputRightMotor = 0; // -1.0 to 1.0
-float outputLeftavon = 0; // -1.0 to 1.0
-float outputRightavon = 0; // 0.0 to 1.0
-float outputAux1 = 0; // 0.0 to 1.0
-float outputAux2 = 0; // 0.0 to 1.0
+float outputLeftavon = 0;   // -1.0 to 1.0
+float outputRightavon = 0;  // 0.0 to 1.0
+float outputAux1 = 0;       // 0.0 to 1.0
+float outputAux2 = 0;       // 0.0 to 1.0
 
 // -----------------------
 // PIDs
@@ -48,9 +46,7 @@ float dt;
 long currentTime, prevTime;
 
 float B_madgwick = 0.04; // Madgwick filter parameter
-float B_accel = 0.14;        // Accelerometer LP filter paramter
-float B_gyro = 0.1;         // Gyro LP filter paramter
-float q0 = 1.0f;             // Initialize quaternion for madgwick filter
+float q0 = 1.0f;         // Initialize quaternion for madgwick filter
 float q1 = 0.0f;
 float q2 = 0.0f;
 float q3 = 0.0f;
@@ -58,7 +54,7 @@ float q3 = 0.0f;
 
 void setupPIDs()
 {
-     pitchPID.SetOutputLimits(-1.0, 1.0);
+    pitchPID.SetOutputLimits(-1.0, 1.0);
     rollPID.SetOutputLimits(-1.0, 1.0);
     yawPID.SetOutputLimits(-1.0, 1.0);
 
@@ -97,39 +93,10 @@ void updatePIDsAngle()
     pitchSetpoint = (double)commandedPitch * 0.6; // Limit to *SOME* degrees
     rollSetpoint = (double)commandedRoll * 0.6;   // Limit to *SOME* degrees
     yawSetpoint = (double)((commandedRoll * 0.5));
-    
-    pitchPID.Compute();
-    rollPID.Compute();
-    yawPID.Compute();
-}
-
-void updatePIDsRates()
-{
-    pitchInput = (double)pitchRate;
-    rollInput = (double)rollRate;
-    yawInput = (double)-yawRate;
-
-    if (currentState == PASSIVE)
-    {
-        resetPIDs();
-    }
-    else
-    {
-        pitchSetpoint = (double)commandedPitch;
-        rollSetpoint = (double)commandedRoll;
-        yawSetpoint = (double)commandedYaw;
-    }
 
     pitchPID.Compute();
     rollPID.Compute();
     yawPID.Compute();
-
-    // Serial.print("Input: ");
-    // Serial.print(pitchInput);
-    // Serial.print(" Setpoint: ");
-    // Serial.print(pitchSetpoint);
-    // Serial.print(" Output: ");
-    // Serial.println(stabilizedPitchOutput);
 }
 
 void handleMotorKillSwitchCheck()
@@ -150,48 +117,7 @@ void mixOutputs()
     outputRightavon = stabilizedPitchOutput - stabilizedRollOutput;
 }
 
-float GyroX = 0.0;
-float GyroY = 0.0;
-float GyroZ = 0.0;
-float prevGyroX = 0.0;
-float prevGyroY = 0.0;
-float prevGyroZ = 0.0;
 
-float AccX = 0.0;
-float AccY = 0.0;
-float AccZ = 0.0;
-float prevAccX = 0.0;
-float prevAccY = 0.0;
-float prevAccZ = 0.0;
-
-void getIMUData()
-{
-    mpu.update();
-
-    GyroX = mpu.getGyroX();
-    GyroY = mpu.getGyroY();
-    GyroZ = mpu.getGyroZ();
-
-    AccX = mpu.getAccX();
-    AccY = mpu.getAccY();
-    AccZ = mpu.getAccZ();
-
-    GyroX = (1.0 - B_gyro) * prevGyroX + B_gyro * GyroX;
-    GyroY = (1.0 - B_gyro) * prevGyroY + B_gyro * GyroY;
-    GyroZ = (1.0 - B_gyro) * prevGyroZ + B_gyro * GyroZ;
-
-    AccX = (1.0 - B_accel) * prevAccX + B_accel * AccX;
-    AccY = (1.0 - B_accel) * prevAccY + B_accel * AccY;
-    AccZ = (1.0 - B_accel) * prevAccZ + B_accel * AccZ;
-
-    prevGyroX = GyroX;
-    prevGyroY = GyroY;
-    prevGyroZ = GyroZ;
-
-    prevAccX = AccX;
-    prevAccY = AccY;
-    prevAccZ = AccZ;
-}
 
 void stabilize()
 {
@@ -205,30 +131,12 @@ void stabilize()
     // // Update pitch, roll, and yaw
     Madgwick6DOF(GyroX, GyroY, GyroZ, AccX, AccY, AccZ, dt);
 
-    // Divide by 131 to get degrees per second
-    // https://github.com/TKJElectronics/KalmanFilter/blob/master/examples/MPU6050/MPU6050.ino#L116C28-L116C35
-    float rateScaleAmount = 1;
-    // Update pitch, roll, and yaw rates
-    pitchRate = mpu.getGyroY() / rateScaleAmount;
-    rollRate = mpu.getGyroX() / rateScaleAmount;
-    yawRate = mpu.getGyroZ() / rateScaleAmount;
-
     // Update commanded pitch, roll, and yaw
     readRawControllerValues();
 
-    // Update PIDs
-    if (currentMode == ANGLE)
-    {
-        // Serial.println("Updating PIDs in angle mode");
-        updatePIDsAngle();
-    }
-    else if (currentMode == RATES)
-    {
-        // Serial.println("Updating PIDs in rates mode");
-        updatePIDsRates();
-    }
+    updatePIDsAngle();
 
-    
+    Serial.println(">Pitch:" + String(pitch));
     // Serial.println(">Roll:" + String(roll));
     // Serial.println(">Yaw:" + String(yaw));
 
@@ -326,9 +234,4 @@ void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, fl
     roll = atan2(q0 * q1 + q2 * q3, 0.5f - q1 * q1 - q2 * q2) * 57.29577951; // degrees
     pitch = -asin(-2.0f * (q1 * q3 - q0 * q2)) * 57.29577951;                // degrees
     yaw = -atan2(q1 * q2 + q0 * q3, 0.5f - q2 * q2 - q3 * q3) * 57.29577951; // degrees
-
-    // Map to -1 to 1
-    roll = fmap(roll, -180.0, 180.0, -1.0, 1.0);
-    pitch = fmap(pitch, -180.0, 180.0, 1.0, -1.0);
-    yaw = fmap(yaw, -180.0, 180.0, -1.0, 1.0);
 }
