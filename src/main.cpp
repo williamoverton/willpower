@@ -11,6 +11,7 @@
 #include "stabilize.h"
 
 static void limitLoopRate(unsigned long rateHz);
+static void printTicks();
 
 int ticks = 0;
 long lastPrintTicks = 0;
@@ -44,24 +45,28 @@ void setup() {
 
   // Setup internal LED
   pinMode(LED_BUILTIN, OUTPUT);
+
+  // calculateIMUError();
 }
 
 void loop() {
   stabilize();
-  
-  // Serial.println(mpu.getAccX());
 
-  // Print ticks every second
-  if (millis() - lastPrintTicks > 1000)
+  printTicks();
+  printDebugInfo();
+  limitLoopRate(2000);
+}
+
+void printTicks() {
+  // Print ticks per second every 100ms
+  if (millis() - lastPrintTicks > 100)
   {
-    Serial.println(">TPS:" + String(ticks));
+    Serial.println(">TPS:" + String(ticks * 10));
     lastPrintTicks = millis();
     ticks = 0;
   }
 
   ticks++;
-
-  limitLoopRate(2000);
 }
 
 void limitLoopRate(unsigned long rateHz)

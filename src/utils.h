@@ -4,4 +4,5 @@
 float fmap(float, float, float, float, float);
 float invSqrt(float x);
 void printMPUOffsets();
+void printDebugInfo();
 #endif

@@ -29,10 +29,10 @@ void positionServos()
 
 void setupServos()
 {
-    leftMotor.attach(PITCH_SERVO_PIN);
-    rightMotor.attach(ROLL_SERVO_PIN);
-    leftAileron.attach(YAW_SERVO_PIN);
-    rightAileron.attach(THROTTLE_SERVO_PIN);
+    leftMotor.attach(LEFT_MOTOR_SERVO_PIN);
+    rightMotor.attach(RIGHT_MOTOR_SERVO_PIN);
+    leftAileron.attach(LEFTAVON_SERVO_PIN);
+    rightAileron.attach(RIGHTAVON_SERVO_PIN);
 
     positionServos();
 }

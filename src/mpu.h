@@ -7,6 +7,7 @@ extern MPU6050 mpu;
 
 void setupMPU();
 void getIMUData();
+void calculateIMUError();
 
 extern float GyroX;
 extern float GyroY;

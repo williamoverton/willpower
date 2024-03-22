@@ -90,9 +90,9 @@ void updatePIDsAngle()
     rollInput = (double)roll;
     yawInput = (double)-yaw;
 
-    pitchSetpoint = (double)commandedPitch * 45; // Limit to *SOME* degrees
-    rollSetpoint = (double)commandedRoll * 45;   // Limit to *SOME* degrees
-    yawSetpoint = (double)((commandedRoll * 45));
+    pitchSetpoint = 90 + (double)commandedPitch * 45; // Limit to *SOME* degrees
+    rollSetpoint = 0;                                 //(double)commandedRoll * 0.6;   // Limit to *SOME* degrees
+    yawSetpoint = 0 + (double)commandedRoll * 45;     // Limit to *SOME* degrees
 
     pitchPID.Compute();
     rollPID.Compute();
@@ -114,7 +114,7 @@ void mixOutputs()
     outputRightMotor = commandedThrottle - stabilizedYawOutput;
 
     outputLeftavon = stabilizedPitchOutput + stabilizedRollOutput;
-    outputRightavon = stabilizedPitchOutput - stabilizedRollOutput;
+    outputRightavon = stabilizedPitchOutput; // - stabilizedRollOutput;
 }
 
 void stabilize()
@@ -134,15 +134,6 @@ void stabilize()
 
     updatePIDsAngle();
 
-    Serial.println(">Pitch:" + String(pitch));
-    // Serial.println(">Roll:" + String(roll));
-    // Serial.println(">Yaw:" + String(yaw));
-
-    // Serial.println("Pitch: " + String(pitch) + " Roll: " + String(roll) + " Yaw: " + String(yaw));
-    // Serial.println("Commanded Pitch: " + String(commandedPitch) + " Commanded Roll: " + String(commandedRoll) + " Commanded Yaw: " + String(commandedYaw));
-    // Serial.println("Motor Left: " + String(outputLeftMotor) + " Motor Right: " + String(outputRightMotor) + " Leftavon: " + String(outputLeftavon) + " Rightavon: " + String(outputRightavon));
-    // Serial.println("Rates:" + String(pitchRate) + " " + String(rollRate) + " " + String(yawRate));
-
     mixOutputs();
 
     handleMotorKillSwitchCheck();
@@ -152,6 +143,7 @@ void stabilize()
 
 void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, float invSampleFreq)
 {
+
     // DESCRIPTION: Attitude estimation through sensor fusion - 6DOF
     /*
      * See description of Madgwick() for more information. This is a 6DOF implimentation for when magnetometer data is not
@@ -177,7 +169,7 @@ void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, fl
     if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f)))
     {
         // Normalise accelerometer measurement
-        recipNorm = invSqrt(ax * ax + ay * ay + az * az);
+        recipNorm = 1.0 / sqrtf(ax * ax + ay * ay + az * az);
         ax *= recipNorm;
         ay *= recipNorm;
         az *= recipNorm;
@@ -202,7 +194,7 @@ void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, fl
         s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * q1 - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;
         s2 = 4.0f * q0q0 * q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
         s3 = 4.0f * q1q1 * q3 - _2q1 * ax + 4.0f * q2q2 * q3 - _2q2 * ay;
-        recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
+        recipNorm = 1.0 / sqrtf(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
         s0 *= recipNorm;
         s1 *= recipNorm;
         s2 *= recipNorm;
@@ -222,14 +214,31 @@ void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, fl
     q3 += qDot4 * invSampleFreq;
 
     // Normalise quaternion
-    recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+    recipNorm = 1.0 / sqrtf(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
     q0 *= recipNorm;
     q1 *= recipNorm;
     q2 *= recipNorm;
     q3 *= recipNorm;
 
+    bool isHovering = false;
+
     // Compute angles
-    roll = atan2(q0 * q1 + q2 * q3, 0.5f - q1 * q1 - q2 * q2) * 57.29577951; // degrees
-    pitch = -asin(-2.0f * (q1 * q3 - q0 * q2)) * 57.29577951;                // degrees
-    yaw = -atan2(q1 * q2 + q0 * q3, 0.5f - q2 * q2 - q3 * q3) * 57.29577951; // degrees
+    if (!isHovering)
+    { // cruise mode
+        // compute angles (std aircraft: psi, theta, phi)In the IMU defined axes NOT AC stability axes!!
+        roll = atan2(q0 * q1 + q2 * q3, 0.5f - q1 * q1 - q2 * q2) * 57.29577951; // degrees
+        pitch = -asin(-2.0f * (q1 * q3 - q0 * q2)) * 57.29577951;                // degrees
+        yaw = -atan2(q1 * q2 + q0 * q3, 0.5f - q2 * q2 - q3 * q3) * 57.29577951; // degrees
+    }
+    else
+    { // hover mode
+        // compute angles (reverse phi,theta rotation order for tailsitter in hover: psi, phi, theta)In the IMU defined axes NOT AC stability axes!!
+        pitch = atan2(q1 * q3 - q0 * q2, 0.5f - (q1 * q1 + q2 * q2)) * 57.29577951 - 90.0f; // degrees, zero is nose vertical!
+        roll = asin(2.0f * (q0 * q1 + q2 * q3)) * 57.29577951;                              // degrees
+        yaw = -atan2(-q1 * q2 + q0 * q3, 0.5f - (q1 * q1 + q3 * q3)) * 57.29577951;         // degrees;
+        // also need to swap roll and yaw gyro data!!
+        float temp = GyroZ;
+        GyroZ = GyroX;
+        GyroX = -temp;
+    }
 }
