@@ -30,8 +30,8 @@ float rollSetpoint = 0, rollInput = 0, stabilizedRollOutput = 0;
 float yawSetpoint = 0, yawInput = 0, stabilizedYawOutput = 0;
 
 // Specify the links and initial tuning parameters
-float pitchKp = 0.2, pitchKi = 0.3, pitchKd = 0.05;
-float rollKp = 0.2, rollKi = 0.3, rollKd = 0.05;
+float pitchKp = 10, pitchKi = 15, pitchKd = 0.8;
+float rollKp = 10, rollKi = 15, rollKd = 0.8;
 float yawKp = 0.3, yawKi = 0.05, yawKd = 0.00015;
 
 QuickPID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint);
@@ -58,9 +58,9 @@ void setupPIDs()
     rollPID.SetOutputLimits(-1.0, 1.0);
     yawPID.SetOutputLimits(-1.0, 1.0);
 
-    pitchPID.SetSampleTimeUs(1000);
-    rollPID.SetSampleTimeUs(1000);
-    yawPID.SetSampleTimeUs(1000);
+    pitchPID.SetSampleTimeUs(500);
+    rollPID.SetSampleTimeUs(500);
+    yawPID.SetSampleTimeUs(500);
 
     // Turn the PIDs on
     pitchPID.SetTunings(pitchKp, pitchKi, pitchKd);
@@ -88,11 +88,11 @@ void updatePIDsAngle()
 {
     pitchInput = (double)pitch;
     rollInput = (double)roll;
-    yawInput = (double)-yaw;
+    yawInput = (double)-GyroZ / 131;
 
-    pitchSetpoint = 90 + (double)commandedPitch * 45; // Limit to *SOME* degrees
-    rollSetpoint = 0;                                 //(double)commandedRoll * 0.6;   // Limit to *SOME* degrees
-    yawSetpoint = 0 + (double)commandedRoll * 45;     // Limit to *SOME* degrees
+    pitchSetpoint = (double)commandedPitch;
+    rollSetpoint = (double)commandedRoll;
+    yawSetpoint = (double)commandedYaw;
 
     pitchPID.Compute();
     rollPID.Compute();
@@ -110,11 +110,33 @@ void handleMotorKillSwitchCheck()
 
 void mixOutputs()
 {
-    outputLeftMotor = commandedThrottle + stabilizedYawOutput;
-    outputRightMotor = commandedThrottle - stabilizedYawOutput;
+    outputLeftMotor = commandedThrottle - stabilizedRollOutput;
+    outputRightMotor = commandedThrottle + stabilizedRollOutput;
 
-    outputLeftavon = stabilizedPitchOutput + stabilizedRollOutput;
-    outputRightavon = stabilizedPitchOutput; // - stabilizedRollOutput;
+    if (commandedThrottle < 0.01)
+    {
+        outputLeftMotor = 0.0;
+        outputRightMotor = 0.0;
+    }
+
+    bool isHovering = commandedAux1 < 0.1;
+
+    outputLeftavon = -stabilizedPitchOutput;
+    outputRightavon = stabilizedPitchOutput;    
+
+    if (isHovering)
+    {
+        outputLeftavon += stabilizedYawOutput;
+        outputRightavon += stabilizedYawOutput;
+    }
+    else
+    {
+        outputLeftavon += -stabilizedRollOutput;
+        outputRightavon += -stabilizedRollOutput;
+    }
+
+    Serial.println(">commandedThrottle: " + String(commandedThrottle));
+    Serial.println(">outputLeftMotor: " + String(outputLeftMotor));
 }
 
 void stabilize()
@@ -220,7 +242,7 @@ void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, fl
     q2 *= recipNorm;
     q3 *= recipNorm;
 
-    bool isHovering = false;
+    bool isHovering = commandedAux1 < 0.1;
 
     // Compute angles
     if (!isHovering)
@@ -241,4 +263,9 @@ void Madgwick6DOF(float gx, float gy, float gz, float ax, float ay, float az, fl
         GyroZ = GyroX;
         GyroX = -temp;
     }
+
+    // Map to -1 to 1
+    roll = fmap(roll, -180.0, 180.0, -1.0, 1.0);
+    pitch = fmap(pitch, -180.0, 180.0, 1.0, -1.0);
+    yaw = fmap(yaw, -180.0, 180.0, -1.0, 1.0);
 }

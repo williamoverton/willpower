@@ -15,15 +15,18 @@ Servo rightAileron;
 
 void positionServos()
 {
-    const float maxServoAngle = 180.0;
-    const float minServoAngle = 0.0;
+    
+    
+    // ESCs expect a PWM signal between 1000-2000 microseconds
+    leftMotor.writeMicroseconds(constrain(int(fmap(outputLeftMotor, 0.0, 1.0, 1000, 2000)), 1000, 2000));
+    rightMotor.writeMicroseconds(constrain(int(fmap(outputRightMotor, 0, 1.0, 1000, 2000)), 1000, 2000));
 
-    // Position servos based on output pitch, roll, and yaw
-    // Remap output pitch, roll and yaw to 0-180 degrees for servo
-    leftMotor.write(constrain(int(fmap(outputLeftMotor, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
-    rightMotor.write(constrain(int(fmap(outputRightMotor, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
-
+    float maxServoAngle = 180.0 - 70;
+    float minServoAngle = 60.0;
     leftAileron.write(constrain(int(fmap(outputLeftavon, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
+    
+    maxServoAngle = 180.0 - 60;
+    minServoAngle = 70.0;
     rightAileron.write(constrain(int(fmap(outputRightavon, -1.0, 1.0, minServoAngle, maxServoAngle)), (int)minServoAngle, (int)maxServoAngle));
 }
 
