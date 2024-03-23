@@ -12,6 +12,7 @@
 
 static void limitLoopRate(unsigned long rateHz);
 static void printTicks();
+static void blink();
 
 int ticks = 0;
 long lastPrintTicks = 0;
@@ -32,8 +33,6 @@ void setup() {
   // Setup I2C
   // Wire.setSDA(SDA_PIN);
   // Wire.setSCL(SCL_PIN);
-  // Wire.setClock(1000000);
-  Wire.setClock(10);
   Wire.begin();
   Wire.setClock(1000000);
   
@@ -54,6 +53,8 @@ void loop() {
 
   printTicks();
   printDebugInfo();
+
+  blink();
   limitLoopRate(2000);
 }
 
@@ -83,4 +84,16 @@ void limitLoopRate(unsigned long rateHz)
   }
 
   lastMicros = micros();
+}
+
+void blink() {
+  static unsigned long lastBlink = 0;
+  static bool ledState = LOW;
+
+  if (millis() - lastBlink > 500)
+  {
+    digitalWrite(LED_BUILTIN, ledState);
+    ledState = !ledState;
+    lastBlink = millis();
+  }
 }
