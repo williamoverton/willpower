@@ -30,9 +30,9 @@ float rollSetpoint = 0, rollInput = 0, stabilizedRollOutput = 0;
 float yawSetpoint = 0, yawInput = 0, stabilizedYawOutput = 0;
 
 // Specify the links and initial tuning parameters
-float pitchKp = 10, pitchKi = 15, pitchKd = 0.8;
-float rollKp = 10, rollKi = 15, rollKd = 0.8;
-float yawKp = 0.3, yawKi = 0.05, yawKd = 0.00015;
+float pitchKp = 1.8, pitchKi = 0.5, pitchKd = 0.18;
+float rollKp = 0.5, rollKi = 0.5, rollKd = 0.17;
+float yawKp = 0.45, yawKi = 0.05, yawKd = 0.0003;
 
 QuickPID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint);
 QuickPID rollPID(&rollInput, &stabilizedRollOutput, &rollSetpoint);
@@ -90,13 +90,33 @@ void updatePIDsAngle()
     rollInput = (double)roll;
     yawInput = (double)-GyroZ / 131;
 
-    pitchSetpoint = (double)commandedPitch;
-    rollSetpoint = (double)commandedRoll;
-    yawSetpoint = (double)commandedYaw;
+    pitchSetpoint = (double)commandedPitch * 0.4;
+    rollSetpoint = (double)commandedRoll * 0.4;
+    yawSetpoint = (double)commandedYaw * 0.8;
+
+    if (commandedThrottle < 0.1)
+    {
+        pitchPID.pTerm = 0.0;
+        pitchPID.iTerm = 0.0;
+        pitchPID.dTerm = 0.0;
+        pitchPID.SetOutputSum(0.0);
+        
+        rollPID.pTerm = 0.0;
+        rollPID.iTerm = 0.0;
+        rollPID.dTerm = 0.0;
+        rollPID.SetOutputSum(0.0);
+
+        yawPID.pTerm = 0.0;
+        yawPID.iTerm = 0.0;
+        yawPID.dTerm = 0.0;
+        yawPID.SetOutputSum(0.0);
+    }
 
     pitchPID.Compute();
     rollPID.Compute();
     yawPID.Compute();
+
+    Serial.println(">PitchITerm: " + String(pitchPID.GetIterm()));
 }
 
 void handleMotorKillSwitchCheck()
@@ -110,8 +130,8 @@ void handleMotorKillSwitchCheck()
 
 void mixOutputs()
 {
-    outputLeftMotor = commandedThrottle - stabilizedRollOutput;
-    outputRightMotor = commandedThrottle + stabilizedRollOutput;
+    outputLeftMotor = commandedThrottle + stabilizedRollOutput;
+    outputRightMotor = commandedThrottle - stabilizedRollOutput;
 
     if (commandedThrottle < 0.01)
     {
@@ -122,21 +142,26 @@ void mixOutputs()
     bool isHovering = commandedAux1 < 0.1;
 
     outputLeftavon = -stabilizedPitchOutput;
-    outputRightavon = stabilizedPitchOutput;    
+    outputRightavon = stabilizedPitchOutput;
 
-    if (isHovering)
-    {
-        outputLeftavon += stabilizedYawOutput;
-        outputRightavon += stabilizedYawOutput;
-    }
-    else
-    {
-        outputLeftavon += -stabilizedRollOutput;
-        outputRightavon += -stabilizedRollOutput;
-    }
+    // if (isHovering)
+    // {
+    //     outputLeftavon += stabilizedYawOutput;
+    //     outputRightavon += stabilizedYawOutput;
+    // }
+    // else
+    // {
+    //     outputLeftavon += -stabilizedRollOutput;
+    //     outputRightavon += -stabilizedRollOutput;
+    // }
 
-    Serial.println(">commandedThrottle: " + String(commandedThrottle));
-    Serial.println(">outputLeftMotor: " + String(outputLeftMotor));
+    // outputLeftavon = 0;
+    // outputRightavon = 0;
+
+    Serial.println(">stabilizedPitchOutput: " + String(stabilizedPitchOutput));
+    Serial.println(">pitchSetpoint: " + String(pitchSetpoint));
+    Serial.println(">pitch: " + String(pitch));
+    // Serial.println(">stabilizedRollOutput: " + String(stabilizedRollOutput));
 }
 
 void stabilize()

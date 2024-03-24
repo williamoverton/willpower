@@ -37,12 +37,12 @@ float prevAccZ = 0.0;
 float B_accel = 0.14; // Accelerometer LP filter paramter
 float B_gyro = 0.1;   // Gyro LP filter paramter
 
-float AccErrorX = 0.08;
-float AccErrorY = -0.00;
+float AccErrorX = 0.11;
+float AccErrorY = -0.02;
 float AccErrorZ = -0.04;
-float GyroErrorX = -0.64;
-float GyroErrorY = 0.46;
-float GyroErrorZ = 0.51;
+float GyroErrorX = -0.63;
+float GyroErrorY = 0.42;
+float GyroErrorZ = 0.43;
 
 // float AccErrorX = 0;
 // float AccErrorY = 0;
