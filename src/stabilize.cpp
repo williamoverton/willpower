@@ -90,7 +90,7 @@ void updatePIDsAngle()
     rollInput = (double)roll;
     yawInput = (double)-GyroZ / 131;
 
-    pitchSetpoint = (double)commandedPitch * 0.4;
+    pitchSetpoint = (double)commandedPitch * 0.2;
     rollSetpoint = (double)commandedRoll * 0.4;
     yawSetpoint = (double)commandedYaw;
 
