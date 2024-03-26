@@ -31,7 +31,7 @@ float yawSetpoint = 0, yawInput = 0, stabilizedYawOutput = 0;
 
 // Specify the links and initial tuning parameters
 float pitchKp = 1.8, pitchKi = 0.5, pitchKd = 0.18;
-float rollKp = 0.5, rollKi = 0.5, rollKd = 0.17;
+float rollKp = 0.6, rollKi = 0.5, rollKd = 0.17;
 float yawKp = 0.45, yawKi = 0.05, yawKd = 0.0003;
 
 QuickPID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint);
@@ -92,7 +92,7 @@ void updatePIDsAngle()
 
     pitchSetpoint = (double)commandedPitch * 0.4;
     rollSetpoint = (double)commandedRoll * 0.4;
-    yawSetpoint = (double)commandedYaw * 0.8;
+    yawSetpoint = (double)commandedYaw;
 
     if (commandedThrottle < 0.1)
     {
@@ -144,16 +144,16 @@ void mixOutputs()
     outputLeftavon = -stabilizedPitchOutput;
     outputRightavon = stabilizedPitchOutput;
 
-    // if (isHovering)
-    // {
-    //     outputLeftavon += stabilizedYawOutput;
-    //     outputRightavon += stabilizedYawOutput;
-    // }
-    // else
-    // {
-    //     outputLeftavon += -stabilizedRollOutput;
-    //     outputRightavon += -stabilizedRollOutput;
-    // }
+    if (isHovering)
+    {
+        outputLeftavon += stabilizedYawOutput;
+        outputRightavon += stabilizedYawOutput;
+    }
+    else
+    {
+        outputLeftavon += -stabilizedRollOutput;
+        outputRightavon += -stabilizedRollOutput;
+    }
 
     // outputLeftavon = 0;
     // outputRightavon = 0;
