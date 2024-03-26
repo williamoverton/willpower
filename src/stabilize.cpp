@@ -31,7 +31,7 @@ float yawSetpoint = 0, yawInput = 0, stabilizedYawOutput = 0;
 
 // Specify the links and initial tuning parameters
 float pitchKp = 1.8, pitchKi = 0.5, pitchKd = 0.18;
-float rollKp = 0.6, rollKi = 0.5, rollKd = 0.17;
+float rollKp = 1.8, rollKi = 0.5, rollKd = 0.17;
 float yawKp = 0.45, yawKi = 0.05, yawKd = 0.0003;
 
 QuickPID pitchPID(&pitchInput, &stabilizedPitchOutput, &pitchSetpoint);
